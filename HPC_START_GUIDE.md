@@ -46,12 +46,29 @@ bash simple_setup.sh
 - ✅ 自动配置使用共享模型库
 - ✅ 设置离线模式
 
-### 5. 激活虚拟环境
+### 5. 下载数据集到本地（首次运行，推荐）
+```bash
+# 激活虚拟环境
+source "/home/rpwang/kava review/venv_kava/bin/activate"
+
+# 下载数据集
+python datasets/download_datasets.py
+
+# 或使用镜像加速（国内推荐）
+python datasets/download_datasets.py --mirror
+```
+
+预计下载时间：10-30分钟  
+占用空间：约 4-6 GB
+
+**注意**：如果跳过此步骤，训练时会自动从 HuggingFace 加载，但速度较慢。
+
+### 6. 激活虚拟环境
 ```bash
 source "/home/rpwang/kava review/venv_kava/bin/activate"
 ```
 
-### 6. 提交训练任务
+### 7. 提交训练任务
 ```bash
 # 提交单个配置
 sbatch --export=CONFIG=llama1b_aug submit_multi_seed.slurm
@@ -60,7 +77,7 @@ sbatch --export=CONFIG=llama1b_aug submit_multi_seed.slurm
 bash submit_all_jobs.sh
 ```
 
-### 7. 监控任务
+### 8. 监控任务
 ```bash
 # 查看任务状态
 squeue -u rpwang
@@ -162,13 +179,17 @@ cd "/home/rpwang/kava review"
 bash check_hpc_models_availability.sh
 bash simple_setup.sh
 
-# 4. 每次登录后激活环境
+# 4. 下载数据集（首次运行，推荐）
+source "/home/rpwang/kava review/venv_kava/bin/activate"
+python datasets/download_datasets.py
+
+# 5. 每次登录后激活环境
 source "/home/rpwang/kava review/venv_kava/bin/activate"
 
-# 5. 提交训练任务
+# 6. 提交训练任务
 sbatch --export=CONFIG=llama1b_aug submit_multi_seed.slurm
 
-# 6. 监控
+# 7. 监控
 squeue -u rpwang
 ```
 
