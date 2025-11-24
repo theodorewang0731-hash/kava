@@ -35,7 +35,8 @@ ENV/
 checkpoints/
 results/
 wandb/
-outputs/
+outputs/*
+!outputs/.gitkeep
 
 # Jupyter Notebooks
 .ipynb_checkpoints
