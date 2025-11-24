@@ -1,9 +1,8 @@
 #!/bin/bash
 ################################################################################
-# HPC 资源安全检查脚本
-################################################################################
-# 用途：在运行训练前检查磁盘配额和资源使用情况
-# 使用：bash check_hpc_quota.sh
+# HPC 璧勬簮瀹夊叏妫€鏌ヨ剼鏈?################################################################################
+# 鐢ㄩ€旓細鍦ㄨ繍琛岃缁冨墠妫€鏌ョ鐩橀厤棰濆拰璧勬簮浣跨敤鎯呭喌
+# 浣跨敤锛歜ash check_hpc_quota.sh
 ################################################################################
 
 GREEN='\033[0;32m'
@@ -13,125 +12,120 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}"
-echo "════════════════════════════════════════════════════════════════"
-echo "  HPC 资源安全检查"
-echo "════════════════════════════════════════════════════════════════"
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
+echo "  HPC 璧勬簮瀹夊叏妫€鏌?
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
 echo -e "${NC}"
 echo ""
 
 # =============================================================================
-# 1. 磁盘空间检查
-# =============================================================================
-echo -e "${BLUE}[1/5] 磁盘空间检查${NC}"
+# 1. 纾佺洏绌洪棿妫€鏌?# =============================================================================
+echo -e "${BLUE}[1/5] 纾佺洏绌洪棿妫€鏌?{NC}"
 echo ""
 
-# HOME 目录空间
+# HOME 鐩綍绌洪棿
 HOME_USAGE=$(df -h $HOME | awk 'NR==2 {print $5}' | sed 's/%//')
 HOME_AVAIL=$(df -h $HOME | awk 'NR==2 {print $4}')
 
-echo "HOME 目录 ($HOME):"
-echo "  使用率: ${HOME_USAGE}%"
-echo "  可用空间: ${HOME_AVAIL}"
+echo "HOME 鐩綍 ($HOME):"
+echo "  浣跨敤鐜? ${HOME_USAGE}%"
+echo "  鍙敤绌洪棿: ${HOME_AVAIL}"
 
 if [ $HOME_USAGE -gt 90 ]; then
-    echo -e "${RED}✗ 警告: 磁盘使用率过高 (${HOME_USAGE}%)${NC}"
-    echo "  建议清理不需要的文件"
+    echo -e "${RED}鉁?璀﹀憡: 纾佺洏浣跨敤鐜囪繃楂?(${HOME_USAGE}%)${NC}"
+    echo "  寤鸿娓呯悊涓嶉渶瑕佺殑鏂囦欢"
 elif [ $HOME_USAGE -gt 80 ]; then
-    echo -e "${YELLOW}⚠ 注意: 磁盘使用率较高 (${HOME_USAGE}%)${NC}"
+    echo -e "${YELLOW}鈿?娉ㄦ剰: 纾佺洏浣跨敤鐜囪緝楂?(${HOME_USAGE}%)${NC}"
 else
-    echo -e "${GREEN}✓ 磁盘空间充足${NC}"
+    echo -e "${GREEN}鉁?纾佺洏绌洪棿鍏呰冻${NC}"
 fi
 echo ""
 
-# HuggingFace 缓存目录
+# HuggingFace 缂撳瓨鐩綍
 HF_CACHE="${HOME}/.cache/huggingface"
 if [ -d "$HF_CACHE" ]; then
     HF_SIZE=$(du -sh "$HF_CACHE" 2>/dev/null | cut -f1)
-    echo "HuggingFace 缓存: $HF_SIZE"
+    echo "HuggingFace 缂撳瓨: $HF_SIZE"
 fi
 
-# 项目输出目录
+# 椤圭洰杈撳嚭鐩綍
 if [ -d "outputs" ]; then
     OUTPUT_SIZE=$(du -sh outputs 2>/dev/null | cut -f1)
-    echo "项目输出目录: $OUTPUT_SIZE"
+    echo "椤圭洰杈撳嚭鐩綍: $OUTPUT_SIZE"
 fi
 echo ""
 
 # =============================================================================
-# 2. 配额检查（如果 HPC 有配额系统）
+# 2. 閰嶉妫€鏌ワ紙濡傛灉 HPC 鏈夐厤棰濈郴缁燂級
 # =============================================================================
-echo -e "${BLUE}[2/5] 配额检查${NC}"
+echo -e "${BLUE}[2/5] 閰嶉妫€鏌?{NC}"
 echo ""
 
 if command -v quota &> /dev/null; then
     quota -s
-    echo -e "${GREEN}✓ 配额信息见上${NC}"
+    echo -e "${GREEN}鉁?閰嶉淇℃伅瑙佷笂${NC}"
 else
-    echo "此 HPC 系统未配置配额检查"
+    echo "姝?HPC 绯荤粺鏈厤缃厤棰濇鏌?
 fi
 echo ""
 
 # =============================================================================
-# 3. SLURM 任务检查
-# =============================================================================
-echo -e "${BLUE}[3/5] SLURM 任务状态${NC}"
+# 3. SLURM 浠诲姟妫€鏌?# =============================================================================
+echo -e "${BLUE}[3/5] SLURM 浠诲姟鐘舵€?{NC}"
 echo ""
 
 if command -v squeue &> /dev/null; then
     RUNNING=$(squeue -u $USER -t RUNNING | wc -l)
     PENDING=$(squeue -u $USER -t PENDING | wc -l)
     
-    # 减1是因为表头行
+    # 鍑?鏄洜涓鸿〃澶磋
     RUNNING=$((RUNNING - 1))
     PENDING=$((PENDING - 1))
     
-    echo "当前任务:"
-    echo "  运行中: $RUNNING"
-    echo "  等待中: $PENDING"
-    echo "  总计: $((RUNNING + PENDING))"
+    echo "褰撳墠浠诲姟:"
+    echo "  杩愯涓? $RUNNING"
+    echo "  绛夊緟涓? $PENDING"
+    echo "  鎬昏: $((RUNNING + PENDING))"
     
     if [ $RUNNING -gt 0 ] || [ $PENDING -gt 0 ]; then
         echo ""
-        echo "任务详情:"
+        echo "浠诲姟璇︽儏:"
         squeue -u $USER --format="%.10i %.15j %.8T %.10M %.6D %.20R"
     fi
     
-    # 检查任务数量是否过多
-    TOTAL=$((RUNNING + PENDING))
+    # 妫€鏌ヤ换鍔℃暟閲忔槸鍚﹁繃澶?    TOTAL=$((RUNNING + PENDING))
     if [ $TOTAL -gt 20 ]; then
-        echo -e "${YELLOW}⚠ 注意: 任务数量较多 ($TOTAL)${NC}"
-        echo "  建议等待部分任务完成后再提交新任务"
+        echo -e "${YELLOW}鈿?娉ㄦ剰: 浠诲姟鏁伴噺杈冨 ($TOTAL)${NC}"
+        echo "  寤鸿绛夊緟閮ㄥ垎浠诲姟瀹屾垚鍚庡啀鎻愪氦鏂颁换鍔?
     elif [ $TOTAL -gt 0 ]; then
-        echo -e "${GREEN}✓ 任务数量正常${NC}"
+        echo -e "${GREEN}鉁?浠诲姟鏁伴噺姝ｅ父${NC}"
     else
-        echo -e "${GREEN}✓ 无运行中的任务${NC}"
+        echo -e "${GREEN}鉁?鏃犺繍琛屼腑鐨勪换鍔?{NC}"
     fi
 else
-    echo -e "${RED}✗ SLURM 命令不可用${NC}"
+    echo -e "${RED}鉁?SLURM 鍛戒护涓嶅彲鐢?{NC}"
 fi
 echo ""
 
 # =============================================================================
-# 4. GPU 资源检查
-# =============================================================================
-echo -e "${BLUE}[4/5] GPU 可用性${NC}"
+# 4. GPU 璧勬簮妫€鏌?# =============================================================================
+echo -e "${BLUE}[4/5] GPU 鍙敤鎬?{NC}"
 echo ""
 
 if command -v sinfo &> /dev/null; then
-    echo "GPU 分区状态:"
+    echo "GPU 鍒嗗尯鐘舵€?"
     sinfo -p compute --format="%.10P %.5a %.10l %.6D %.20N %.20C" 2>/dev/null || \
     sinfo --format="%.10P %.5a %.10l %.6D %.20N %.20C"
     echo ""
-    echo -e "${GREEN}✓ GPU 分区信息见上${NC}"
+    echo -e "${GREEN}鉁?GPU 鍒嗗尯淇℃伅瑙佷笂${NC}"
 else
-    echo "无法查询 GPU 状态"
+    echo "鏃犳硶鏌ヨ GPU 鐘舵€?
 fi
 echo ""
 
 # =============================================================================
-# 5. 项目文件检查
-# =============================================================================
-echo -e "${BLUE}[5/5] 项目文件完整性${NC}"
+# 5. 椤圭洰鏂囦欢妫€鏌?# =============================================================================
+echo -e "${BLUE}[5/5] 椤圭洰鏂囦欢瀹屾暣鎬?{NC}"
 echo ""
 
 REQUIRED_FILES=(
@@ -144,55 +138,54 @@ REQUIRED_FILES=(
 ALL_OK=true
 for file in "${REQUIRED_FILES[@]}"; do
     if [ -f "$file" ]; then
-        echo -e "${GREEN}✓${NC} $file"
+        echo -e "${GREEN}鉁?{NC} $file"
     else
-        echo -e "${RED}✗${NC} $file (缺失)"
+        echo -e "${RED}鉁?{NC} $file (缂哄け)"
         ALL_OK=false
     fi
 done
 
 if [ "$ALL_OK" = true ]; then
     echo ""
-    echo -e "${GREEN}✓ 所有必需文件存在${NC}"
+    echo -e "${GREEN}鉁?鎵€鏈夊繀闇€鏂囦欢瀛樺湪${NC}"
 fi
 echo ""
 
 # =============================================================================
-# 摘要和建议
-# =============================================================================
+# 鎽樿鍜屽缓璁?# =============================================================================
 echo -e "${BLUE}"
-echo "════════════════════════════════════════════════════════════════"
-echo "  检查完成"
-echo "════════════════════════════════════════════════════════════════"
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
+echo "  妫€鏌ュ畬鎴?
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
 echo -e "${NC}"
 echo ""
 
-echo "安全提醒:"
-echo "  1. 所有操作仅限于您的 HOME 目录: /home/rpwang"
-echo "  2. 项目路径: /home/rpwang/kava review (包含空格)"
-echo "  3. 不会影响其他用户的文件或进程"
-echo "  4. 资源使用受 SLURM 配额限制"
-echo "  5. 所有计算任务通过 SLURM 调度"
+echo "瀹夊叏鎻愰啋:"
+echo "  1. 鎵€鏈夋搷浣滀粎闄愪簬鎮ㄧ殑 HOME 鐩綍: /home/rpwang"
+echo "  2. 椤圭洰璺緞: /home/rpwang/kava review (鍖呭惈绌烘牸)"
+echo "  3. 涓嶄細褰卞搷鍏朵粬鐢ㄦ埛鐨勬枃浠舵垨杩涚▼"
+echo "  4. 璧勬簮浣跨敤鍙?SLURM 閰嶉闄愬埗"
+echo "  5. 鎵€鏈夎绠椾换鍔￠€氳繃 SLURM 璋冨害"
 echo ""
-echo -e "${YELLOW}⚠️  路径空格提醒:${NC}"
-echo "  • 命令行操作时使用引号: cd \"/home/rpwang/kava review\""
-echo "  • 建议重命名为: mv \"kava review\" kava_review"
+echo -e "${YELLOW}鈿狅笍  璺緞绌烘牸鎻愰啋:${NC}"
+echo "  鈥?鍛戒护琛屾搷浣滄椂浣跨敤寮曞彿: cd \"/home/rpwang/kava review\""
+echo "  鈥?寤鸿閲嶅懡鍚嶄负: mv \"kava review\" kava_review"
 echo ""
 
 if [ $HOME_USAGE -gt 80 ] || [ $TOTAL -gt 15 ]; then
-    echo -e "${YELLOW}建议操作:${NC}"
+    echo -e "${YELLOW}寤鸿鎿嶄綔:${NC}"
     if [ $HOME_USAGE -gt 80 ]; then
-        echo "  • 清理不需要的缓存: huggingface-cli delete-cache"
-        echo "  • 删除旧的训练输出: rm -rf outputs/old_experiment"
+        echo "  鈥?娓呯悊涓嶉渶瑕佺殑缂撳瓨: huggingface-cli delete-cache"
+        echo "  鈥?鍒犻櫎鏃х殑璁粌杈撳嚭: rm -rf outputs/old_experiment"
     fi
     if [ $TOTAL -gt 15 ]; then
-        echo "  • 等待部分任务完成后再提交新任务"
+        echo "  鈥?绛夊緟閮ㄥ垎浠诲姟瀹屾垚鍚庡啀鎻愪氦鏂颁换鍔?
     fi
     echo ""
 fi
 
-echo "如果一切正常，可以运行:"
-echo "  bash simple_setup.sh          # 配置环境"
-echo "  bash submit_all_jobs.sh       # 提交训练任务"
-echo "  bash monitor_jobs.sh          # 监控任务状态"
+echo "濡傛灉涓€鍒囨甯革紝鍙互杩愯:"
+echo "  bash simple_setup.sh          # 閰嶇疆鐜"
+echo "  bash submit_all_jobs.sh       # 鎻愪氦璁粌浠诲姟"
+echo "  bash monitor_jobs.sh          # 鐩戞帶浠诲姟鐘舵€?
 echo ""

@@ -7,7 +7,7 @@
 #   1. Pre-flight checks (disk space, network, SLURM availability)
 #   2. Conda environment setup (kava_env)
 #   3. Model download (~19GB: Llama-3.2-1B/3B-Instruct, Qwen2.5-0.5B-Instruct)
-#   4. SLURM job submission (4 configs × 3 seeds = 12 jobs)
+#   4. SLURM job submission (4 configs 脳 3 seeds = 12 jobs)
 #   5. Monitoring and results collection
 #
 # Usage:
@@ -33,7 +33,7 @@
 #   - HPC access (SLURM cluster)
 #   - ~19GB disk space in $HOME/.cache/huggingface
 #   - Network access (for model download)
-#   - GPU resources: A100-80GB (4 configs × 3 seeds)
+#   - GPU resources: A100-80GB (4 configs 脳 3 seeds)
 ################################################################################
 
 set -euo pipefail  # Exit on error, undefined vars, pipe failures
@@ -357,26 +357,26 @@ detect_download_method() {
 download_models() {
     log_section "Step 3/5: Model Configuration"
     
-    # HPC 上已有共享模型，无需下载
-    log_info "检查 HPC 共享模型库..."
+    # HPC 涓婂凡鏈夊叡浜ā鍨嬶紝鏃犻渶涓嬭浇
+    log_info "妫€鏌?HPC 鍏变韩妯″瀷搴?.."
     
     local hpc_models_dir="/home/share/models"
     if [ -d "$hpc_models_dir" ]; then
-        log_success "HPC 共享模型库可用: $hpc_models_dir"
+        log_success "HPC 鍏变韩妯″瀷搴撳彲鐢? $hpc_models_dir"
         export HF_HOME="$hpc_models_dir"
         export TRANSFORMERS_CACHE="$hpc_models_dir"
         export HUGGINGFACE_HUB_OFFLINE=1
-        log_info "已配置使用共享模型（离线模式）"
+        log_info "宸查厤缃娇鐢ㄥ叡浜ā鍨嬶紙绂荤嚎妯″紡锛?
         return
     fi
     
-    # 如果指定跳过下载
+    # 濡傛灉鎸囧畾璺宠繃涓嬭浇
     if [ "$SKIP_DOWNLOAD" = true ]; then
         log_info "Skipping model download (--skip-download specified)"
         return
     fi
     
-    log_warning "HPC 共享模型库不可用，将下载到个人缓存"
+    log_warning "HPC 鍏变韩妯″瀷搴撲笉鍙敤锛屽皢涓嬭浇鍒颁釜浜虹紦瀛?
     
     local method=$(detect_download_method)
     log_info "Using download method: $method"
@@ -432,7 +432,7 @@ def download_model(model_name, progress_callback=None):
         # Load to verify
         print(f"[2/2] Verifying model integrity...")
         tokenizer = AutoTokenizer.from_pretrained(model_name)
-        print(f"✓ Tokenizer loaded: vocab_size={len(tokenizer)}")
+        print(f"鉁?Tokenizer loaded: vocab_size={len(tokenizer)}")
         
         # Check model size without loading full weights
         model = AutoModelForCausalLM.from_pretrained(
@@ -442,18 +442,18 @@ def download_model(model_name, progress_callback=None):
             device_map="cpu"
         )
         num_params = sum(p.numel() for p in model.parameters()) / 1e9
-        print(f"✓ Model verified: {num_params:.2f}B parameters")
+        print(f"鉁?Model verified: {num_params:.2f}B parameters")
         
         # Clean up to save memory
         del model
         del tokenizer
         torch.cuda.empty_cache()
         
-        print(f"✅ Successfully downloaded: {model_name}")
+        print(f"鉁?Successfully downloaded: {model_name}")
         return True
         
     except Exception as e:
-        print(f"❌ Failed to download {model_name}: {e}")
+        print(f"鉂?Failed to download {model_name}: {e}")
         return False
 
 if __name__ == "__main__":
@@ -522,7 +522,7 @@ submit_jobs() {
     local total_jobs=$((${#CONFIGS[@]} * ${#SEEDS[@]}))
     local submitted=0
     
-    log_info "Submitting $total_jobs training jobs (${#CONFIGS[@]} configs × ${#SEEDS[@]} seeds)..."
+    log_info "Submitting $total_jobs training jobs (${#CONFIGS[@]} configs 脳 ${#SEEDS[@]} seeds)..."
     
     for config in "${CONFIGS[@]}"; do
         if [ ! -f "$config" ]; then
@@ -543,9 +543,9 @@ submit_jobs() {
             if [ -n "$job_id" ]; then
                 job_ids+=("$job_id")
                 submitted=$((submitted + 1))
-                log_success "  ✓ Seed $seed: Job ID $job_id"
+                log_success "  鉁?Seed $seed: Job ID $job_id"
             else
-                log_error "  ✗ Failed to submit seed $seed"
+                log_error "  鉁?Failed to submit seed $seed"
             fi
         done
     done
@@ -606,7 +606,7 @@ find outputs/logs -name "*.log" -mmin -5 -exec bash -c 'echo "- $(basename {}): 
 echo ""
 echo "Completed Results:"
 if [ -d "outputs/results" ]; then
-    find outputs/results -name "*.json" -exec bash -c 'echo "✓ $(basename {})"' \;
+    find outputs/results -name "*.json" -exec bash -c 'echo "鉁?$(basename {})"' \;
 fi
 
 echo ""
@@ -628,7 +628,7 @@ echo ""
 # Check if all jobs are done
 RUNNING=$(squeue -u $USER -h | wc -l)
 if [ $RUNNING -gt 0 ]; then
-    echo "⚠ Warning: $RUNNING jobs still running"
+    echo "鈿?Warning: $RUNNING jobs still running"
     echo "Wait for all jobs to complete before collecting results"
     exit 1
 fi
@@ -640,12 +640,12 @@ if [ -f "aggregate_multi_seed.py" ]; then
     
     if [ -f "outputs/aggregated_results.json" ]; then
         echo ""
-        echo "✅ Results aggregated successfully!"
+        echo "鉁?Results aggregated successfully!"
         echo ""
         echo "Full results in: outputs/aggregated_results.json"
     fi
 else
-    echo "❌ aggregate_multi_seed.py not found"
+    echo "鉂?aggregate_multi_seed.py not found"
 fi
 EOF
     
@@ -672,14 +672,14 @@ EOF
 
 print_header() {
     echo ""
-    echo -e "${CYAN}╔════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║                                                                ║${NC}"
-    echo -e "${CYAN}║        KAVA Paper Reproduction - Automated Workflow           ║${NC}"
-    echo -e "${CYAN}║                                                                ║${NC}"
-    echo -e "${CYAN}║  Knowledge-Augmented Verbal-Augmentation (KAVA)                ║${NC}"
-    echo -e "${CYAN}║  Strict reproduction according to paper specifications         ║${NC}"
-    echo -e "${CYAN}║                                                                ║${NC}"
-    echo -e "${CYAN}╚════════════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${CYAN}鈺斺晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晽${NC}"
+    echo -e "${CYAN}鈺?                                                               鈺?{NC}"
+    echo -e "${CYAN}鈺?       KAVA Paper Reproduction - Automated Workflow           鈺?{NC}"
+    echo -e "${CYAN}鈺?                                                               鈺?{NC}"
+    echo -e "${CYAN}鈺? Knowledge-Augmented Verbal-Augmentation (KAVA)                鈺?{NC}"
+    echo -e "${CYAN}鈺? Strict reproduction according to paper specifications         鈺?{NC}"
+    echo -e "${CYAN}鈺?                                                               鈺?{NC}"
+    echo -e "${CYAN}鈺氣晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨暆${NC}"
     echo ""
     
     log_info "Starting automated reproduction workflow..."
@@ -694,14 +694,14 @@ print_summary() {
     log_section "Automation Complete"
     
     echo ""
-    log_success "🎉 Setup completed successfully!"
+    log_success "馃帀 Setup completed successfully!"
     echo ""
     log_info "Timeline:"
-    log_info "  ✓ Pre-flight checks: Complete"
-    log_info "  ✓ Environment setup: Complete"
-    log_info "  ✓ Model download: Complete (~19GB cached)"
-    log_info "  ✓ Job submission: Complete (12 jobs)"
-    log_info "  ⏳ Training: In progress (36-48 hours estimated)"
+    log_info "  鉁?Pre-flight checks: Complete"
+    log_info "  鉁?Environment setup: Complete"
+    log_info "  鉁?Model download: Complete (~19GB cached)"
+    log_info "  鉁?Job submission: Complete (12 jobs)"
+    log_info "  鈴?Training: In progress (36-48 hours estimated)"
     echo ""
     
     log_info "Your experiments are now running on the HPC cluster!"

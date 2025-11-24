@@ -1,12 +1,12 @@
 #!/bin/bash
 ################################################################################
-# 简化的 HPC 启动脚本（处理路径空格问题）
-# 用法: bash simple_setup.sh
+# 绠€鍖栫殑 HPC 鍚姩鑴氭湰锛堝鐞嗚矾寰勭┖鏍奸棶棰橈級
+# 鐢ㄦ硶: bash simple_setup.sh
 ################################################################################
 
 set -e
 
-# 颜色
+# 棰滆壊
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -14,172 +14,166 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}"
-echo "════════════════════════════════════════════════════════════════"
-echo "  KAVA 简化配置脚本"
-echo "════════════════════════════════════════════════════════════════"
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
+echo "  KAVA 绠€鍖栭厤缃剼鏈?
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
 echo -e "${NC}"
 echo ""
 
-# 获取脚本所在目录（处理空格）
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# 鑾峰彇鑴氭湰鎵€鍦ㄧ洰褰曪紙澶勭悊绌烘牸锛?SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-echo "当前目录: $SCRIPT_DIR"
+echo "褰撳墠鐩綍: $SCRIPT_DIR"
 echo ""
 
 # =============================================================================
-# 步骤 1: 检查路径
-# =============================================================================
-echo -e "${BLUE}[1/5] 检查路径${NC}"
+# 姝ラ 1: 妫€鏌ヨ矾寰?# =============================================================================
+echo -e "${BLUE}[1/5] 妫€鏌ヨ矾寰?{NC}"
 if [[ "$SCRIPT_DIR" == *" "* ]]; then
-    echo -e "${YELLOW}⚠ 警告: 路径包含空格${NC}"
-    echo "  这可能导致一些脚本失败"
+    echo -e "${YELLOW}鈿?璀﹀憡: 璺緞鍖呭惈绌烘牸${NC}"
+    echo "  杩欏彲鑳藉鑷翠竴浜涜剼鏈け璐?
     echo ""
-    echo -e "${YELLOW}强烈建议重命名目录:${NC}"
+    echo -e "${YELLOW}寮虹儓寤鸿閲嶅懡鍚嶇洰褰?${NC}"
     echo "  cd $(dirname "$SCRIPT_DIR")"
     echo "  mv \"$(basename "$SCRIPT_DIR")\" kava_review"
     echo "  cd kava_review"
     echo ""
-    read -p "是否继续当前配置? (y/N) " -n 1 -r
+    read -p "鏄惁缁х画褰撳墠閰嶇疆? (y/N) " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         exit 1
     fi
 else
-    echo -e "${GREEN}✓ 路径正常${NC}"
+    echo -e "${GREEN}鉁?璺緞姝ｅ父${NC}"
 fi
 echo ""
 
 # =============================================================================
-# 步骤 2: 检查 Python
+# 姝ラ 2: 妫€鏌?Python
 # =============================================================================
-echo -e "${BLUE}[2/5] 检查 Python${NC}"
+echo -e "${BLUE}[2/5] 妫€鏌?Python${NC}"
 
-# 尝试找到 Python
+# 灏濊瘯鎵惧埌 Python
 if command -v python3 &> /dev/null; then
     PYTHON_CMD="python3"
-    echo -e "${GREEN}✓ 找到 Python3: $(python3 --version)${NC}"
+    echo -e "${GREEN}鉁?鎵惧埌 Python3: $(python3 --version)${NC}"
 elif command -v python &> /dev/null; then
     PYTHON_CMD="python"
-    echo -e "${GREEN}✓ 找到 Python: $(python --version)${NC}"
+    echo -e "${GREEN}鉁?鎵惧埌 Python: $(python --version)${NC}"
 else
-    echo -e "${RED}✗ 未找到 Python${NC}"
+    echo -e "${RED}鉁?鏈壘鍒?Python${NC}"
     exit 1
 fi
 echo ""
 
 # =============================================================================
-# 步骤 3: 创建虚拟环境（不依赖 conda）
-# =============================================================================
-echo -e "${BLUE}[3/5] 创建 Python 虚拟环境${NC}"
+# 姝ラ 3: 鍒涘缓铏氭嫙鐜锛堜笉渚濊禆 conda锛?# =============================================================================
+echo -e "${BLUE}[3/5] 鍒涘缓 Python 铏氭嫙鐜${NC}"
 
 VENV_DIR="venv_kava"
 
 if [ -d "$VENV_DIR" ]; then
-    echo -e "${YELLOW}⚠ 虚拟环境已存在: $VENV_DIR${NC}"
-    read -p "是否重新创建? (y/N) " -n 1 -r
+    echo -e "${YELLOW}鈿?铏氭嫙鐜宸插瓨鍦? $VENV_DIR${NC}"
+    read -p "鏄惁閲嶆柊鍒涘缓? (y/N) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         rm -rf "$VENV_DIR"
         $PYTHON_CMD -m venv "$VENV_DIR"
-        echo -e "${GREEN}✓ 虚拟环境已重新创建${NC}"
+        echo -e "${GREEN}鉁?铏氭嫙鐜宸查噸鏂板垱寤?{NC}"
     else
-        echo "使用现有虚拟环境"
+        echo "浣跨敤鐜版湁铏氭嫙鐜"
     fi
 else
     $PYTHON_CMD -m venv "$VENV_DIR"
-    echo -e "${GREEN}✓ 虚拟环境已创建${NC}"
+    echo -e "${GREEN}鉁?铏氭嫙鐜宸插垱寤?{NC}"
 fi
 
-# 激活虚拟环境
-source "$VENV_DIR/bin/activate"
-echo -e "${GREEN}✓ 虚拟环境已激活${NC}"
+# 婵€娲昏櫄鎷熺幆澧?source "$VENV_DIR/bin/activate"
+echo -e "${GREEN}鉁?铏氭嫙鐜宸叉縺娲?{NC}"
 echo ""
 
 # =============================================================================
-# 步骤 4: 安装依赖
+# 姝ラ 4: 瀹夎渚濊禆
 # =============================================================================
-echo -e "${BLUE}[4/5] 安装依赖${NC}"
+echo -e "${BLUE}[4/5] 瀹夎渚濊禆${NC}"
 
-# 升级 pip
+# 鍗囩骇 pip
 pip install --upgrade pip -q
 
-# 安装项目依赖
-echo "正在安装 requirements.txt 中的包..."
+# 瀹夎椤圭洰渚濊禆
+echo "姝ｅ湪瀹夎 requirements.txt 涓殑鍖?.."
 pip install -r requirements.txt
 
-echo -e "${GREEN}✓ 依赖安装完成${NC}"
+echo -e "${GREEN}鉁?渚濊禆瀹夎瀹屾垚${NC}"
 echo ""
 
 # =============================================================================
-# 步骤 5: 配置环境变量
+# 姝ラ 5: 閰嶇疆鐜鍙橀噺
 # =============================================================================
-echo -e "${BLUE}[5/5] 配置环境${NC}"
+echo -e "${BLUE}[5/5] 閰嶇疆鐜${NC}"
 
-# 检查 HPC 共享模型库
-HPC_MODELS="/home/share/models"
+# 妫€鏌?HPC 鍏变韩妯″瀷搴?HPC_MODELS="/home/share/models"
 if [ -d "$HPC_MODELS" ]; then
-    echo -e "${GREEN}✓ 检测到 HPC 共享模型库${NC}"
+    echo -e "${GREEN}鉁?妫€娴嬪埌 HPC 鍏变韩妯″瀷搴?{NC}"
     export HF_HOME="$HPC_MODELS"
     export TRANSFORMERS_CACHE="$HPC_MODELS"
     export HF_DATASETS_CACHE="$HOME/.cache/huggingface"
     export HUGGINGFACE_HUB_OFFLINE=1
-    echo "  模型路径: $HPC_MODELS"
-    echo "  数据集缓存: $HF_DATASETS_CACHE"
-    echo "  离线模式: 已启用"
+    echo "  妯″瀷璺緞: $HPC_MODELS"
+    echo "  鏁版嵁闆嗙紦瀛? $HF_DATASETS_CACHE"
+    echo "  绂荤嚎妯″紡: 宸插惎鐢?
 else
-    echo -e "${YELLOW}⚠ HPC 共享模型库不可用，使用个人缓存${NC}"
+    echo -e "${YELLOW}鈿?HPC 鍏变韩妯″瀷搴撲笉鍙敤锛屼娇鐢ㄤ釜浜虹紦瀛?{NC}"
     export HF_HOME="$HOME/.cache/huggingface"
     export TRANSFORMERS_CACHE="$HOME/.cache/huggingface"
     export HF_DATASETS_CACHE="$HOME/.cache/huggingface"
     mkdir -p "$HF_HOME"
-    echo "  缓存路径: $HF_HOME"
+    echo "  缂撳瓨璺緞: $HF_HOME"
 fi
 
-# 创建必要的目录
-mkdir -p logs outputs/checkpoints outputs/results
+# 鍒涘缓蹇呰鐨勭洰褰?mkdir -p logs outputs/checkpoints outputs/results
 mkdir -p "$HF_DATASETS_CACHE"
-echo -e "${GREEN}✓ 输出目录已创建${NC}"
+echo -e "${GREEN}鉁?杈撳嚭鐩綍宸插垱寤?{NC}"
 echo ""
 
 # =============================================================================
-# 完成
+# 瀹屾垚
 # =============================================================================
 echo -e "${GREEN}"
-echo "════════════════════════════════════════════════════════════════"
-echo "  配置完成！"
-echo "════════════════════════════════════════════════════════════════"
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
+echo "  閰嶇疆瀹屾垚锛?
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
 echo -e "${NC}"
 echo ""
-echo "虚拟环境已激活。你现在可以："
+echo "铏氭嫙鐜宸叉縺娲汇€備綘鐜板湪鍙互锛?
 echo ""
-echo "1. 提交 SLURM 训练任务（推荐）："
+echo "1. 鎻愪氦 SLURM 璁粌浠诲姟锛堟帹鑽愶級锛?
 echo "   sbatch --export=CONFIG=llama1b_aug submit_multi_seed.slurm"
-echo "   sbatch submit_all_jobs.sh  # 提交所有配置"
+echo "   sbatch submit_all_jobs.sh  # 鎻愪氦鎵€鏈夐厤缃?
 echo ""
-echo "2. 或者直接运行训练（用于测试）："
+echo "2. 鎴栬€呯洿鎺ヨ繍琛岃缁冿紙鐢ㄤ簬娴嬭瘯锛夛細"
 echo "   python train.py --config configs/llama1b_aug.yaml"
 echo ""
-echo "3. 监控任务状态："
+echo "3. 鐩戞帶浠诲姟鐘舵€侊細"
 echo "   squeue -u rpwang"
 echo "   bash monitor_jobs.sh"
 echo ""
 if [ -d "$HPC_MODELS" ]; then
-    echo -e "${GREEN}✓ 模型已就绪: HPC 共享模型库 $HPC_MODELS${NC}"
-    echo "  无需下载模型，直接提交训练任务即可！"
+    echo -e "${GREEN}鉁?妯″瀷宸插氨缁? HPC 鍏变韩妯″瀷搴?$HPC_MODELS${NC}"
+    echo "  鏃犻渶涓嬭浇妯″瀷锛岀洿鎺ユ彁浜よ缁冧换鍔″嵆鍙紒"
 else
-    echo -e "${YELLOW}⚠ 注意: 如需下载模型，运行:${NC}"
+    echo -e "${YELLOW}鈿?娉ㄦ剰: 濡傞渶涓嬭浇妯″瀷锛岃繍琛?${NC}"
     echo "   python download_from_hf.py"
 fi
 echo ""
-echo -e "${YELLOW}注意: 每次登录都需要重新激活环境:${NC}"
+echo -e "${YELLOW}娉ㄦ剰: 姣忔鐧诲綍閮介渶瑕侀噸鏂版縺娲荤幆澧?${NC}"
 echo "   source \"$VENV_DIR/bin/activate\""
 echo ""
-echo -e "${YELLOW}或者将激活命令添加到 ~/.bashrc:${NC}"
+echo -e "${YELLOW}鎴栬€呭皢婵€娲诲懡浠ゆ坊鍔犲埌 ~/.bashrc:${NC}"
 echo "   echo 'source \"/home/rpwang/kava review/$VENV_DIR/bin/activate\"' >> ~/.bashrc"
-echo "   # 注意: 路径包含空格，必须使用引号"
+echo "   # 娉ㄦ剰: 璺緞鍖呭惈绌烘牸锛屽繀椤讳娇鐢ㄥ紩鍙?
 echo ""
-echo -e "${YELLOW}💡 推荐: 重命名目录以避免空格问题:${NC}"
+echo -e "${YELLOW}馃挕 鎺ㄨ崘: 閲嶅懡鍚嶇洰褰曚互閬垮厤绌烘牸闂:${NC}"
 echo "   cd /home/rpwang"
 echo "   mv \"kava review\" kava_review"
 echo ""

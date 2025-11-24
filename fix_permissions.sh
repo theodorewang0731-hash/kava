@@ -1,35 +1,32 @@
 #!/bin/bash
 
 ################################################################################
-# 一次性权限设置脚本
+# 涓€娆℃€ф潈闄愯缃剼鏈?################################################################################
+# 杩欎釜鑴氭湰浼氳嚜鍔ㄨ缃墍鏈夐渶瑕佹墽琛屾潈闄愮殑鏂囦欢
+# 杩愯鏂瑰紡锛歜ash fix_permissions.sh
 ################################################################################
-# 这个脚本会自动设置所有需要执行权限的文件
-# 运行方式：bash fix_permissions.sh
-################################################################################
 
-echo "正在设置文件执行权限..."
+echo "姝ｅ湪璁剧疆鏂囦欢鎵ц鏉冮檺..."
 
-# 当前存在的脚本
-chmod +x verify_deployment.sh 2>/dev/null && echo "✓ verify_deployment.sh" || echo "⚠ verify_deployment.sh 不存在"
-chmod +x setup_hpc.sh 2>/dev/null && echo "✓ setup_hpc.sh" || echo "⚠ setup_hpc.sh 不存在"
-chmod +x start.sh 2>/dev/null && echo "✓ start.sh" || echo "⚠ start.sh 不存在"
-chmod +x run_reproduce.sh 2>/dev/null && echo "✓ run_reproduce.sh" || echo "⚠ run_reproduce.sh 不存在"
-chmod +x hpc_run_all.sh 2>/dev/null && echo "✓ hpc_run_all.sh" || echo "⚠ hpc_run_all.sh 不存在"
-chmod +x fix_permissions.sh 2>/dev/null && echo "✓ fix_permissions.sh" || echo "⚠ fix_permissions.sh 不存在"
+# 褰撳墠瀛樺湪鐨勮剼鏈?chmod +x verify_deployment.sh 2>/dev/null && echo "鉁?verify_deployment.sh" || echo "鈿?verify_deployment.sh 涓嶅瓨鍦?
+chmod +x setup_hpc.sh 2>/dev/null && echo "鉁?setup_hpc.sh" || echo "鈿?setup_hpc.sh 涓嶅瓨鍦?
+chmod +x start.sh 2>/dev/null && echo "鉁?start.sh" || echo "鈿?start.sh 涓嶅瓨鍦?
+chmod +x run_reproduce.sh 2>/dev/null && echo "鉁?run_reproduce.sh" || echo "鈿?run_reproduce.sh 涓嶅瓨鍦?
+chmod +x hpc_run_all.sh 2>/dev/null && echo "鉁?hpc_run_all.sh" || echo "鈿?hpc_run_all.sh 涓嶅瓨鍦?
+chmod +x fix_permissions.sh 2>/dev/null && echo "鉁?fix_permissions.sh" || echo "鈿?fix_permissions.sh 涓嶅瓨鍦?
 
-# SLURM 脚本
-chmod +x submit_multi_seed.slurm 2>/dev/null && echo "✓ submit_multi_seed.slurm" || echo "⚠ submit_multi_seed.slurm 不存在"
+# SLURM 鑴氭湰
+chmod +x submit_multi_seed.slurm 2>/dev/null && echo "鉁?submit_multi_seed.slurm" || echo "鈿?submit_multi_seed.slurm 涓嶅瓨鍦?
 
-# 自动生成的脚本（如果存在）
-chmod +x monitor_jobs.sh 2>/dev/null && echo "✓ monitor_jobs.sh" || echo "⚠ monitor_jobs.sh (运行 start.sh 后会自动生成)"
-chmod +x collect_results.sh 2>/dev/null && echo "✓ collect_results.sh" || echo "⚠ collect_results.sh (运行 start.sh 后会自动生成)"
+# 鑷姩鐢熸垚鐨勮剼鏈紙濡傛灉瀛樺湪锛?chmod +x monitor_jobs.sh 2>/dev/null && echo "鉁?monitor_jobs.sh" || echo "鈿?monitor_jobs.sh (杩愯 start.sh 鍚庝細鑷姩鐢熸垚)"
+chmod +x collect_results.sh 2>/dev/null && echo "鉁?collect_results.sh" || echo "鈿?collect_results.sh (杩愯 start.sh 鍚庝細鑷姩鐢熸垚)"
 
 echo ""
-echo "权限设置完成！"
+echo "鏉冮檺璁剧疆瀹屾垚锛?
 echo ""
-echo "注意："
-echo "  - monitor_jobs.sh 和 collect_results.sh 会在运行 start.sh 后自动生成"
-echo "  - 生成后它们会自动具有执行权限"
+echo "娉ㄦ剰锛?
+echo "  - monitor_jobs.sh 鍜?collect_results.sh 浼氬湪杩愯 start.sh 鍚庤嚜鍔ㄧ敓鎴?
+echo "  - 鐢熸垚鍚庡畠浠細鑷姩鍏锋湁鎵ц鏉冮檺"
 echo ""
-echo "现在可以运行："
+echo "鐜板湪鍙互杩愯锛?
 echo "  bash verify_deployment.sh"

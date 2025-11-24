@@ -1,26 +1,26 @@
 #!/bin/bash
 
 ################################################################################
-# 检测正确的 GPU GRES 格式
+# 妫€娴嬫纭殑 GPU GRES 鏍煎紡
 ################################################################################
 
-echo "=== 检测 HPC 的 GPU 配置格式 ==="
+echo "=== 妫€娴?HPC 鐨?GPU 閰嶇疆鏍煎紡 ==="
 echo ""
 
-echo "[1] 检查可用的 GPU 类型"
+echo "[1] 妫€鏌ュ彲鐢ㄧ殑 GPU 绫诲瀷"
 echo "----------------------------------------"
 sinfo -o "%P %G" | grep -v "GRES" | grep "gpu"
 echo ""
 
-echo "[2] 检查节点的 GPU 配置"
+echo "[2] 妫€鏌ヨ妭鐐圭殑 GPU 閰嶇疆"
 echo "----------------------------------------"
 scontrol show node | grep -E "NodeName|Gres=" | head -20
 echo ""
 
-echo "[3] 测试不同的 GPU 请求格式"
+echo "[3] 娴嬭瘯涓嶅悓鐨?GPU 璇锋眰鏍煎紡"
 echo "----------------------------------------"
 
-# 创建测试脚本模板
+# 鍒涘缓娴嬭瘯鑴氭湰妯℃澘
 cat > /tmp/test_gpu.sh << 'EOF'
 #!/bin/bash
 #SBATCH --job-name=test-gpu
@@ -35,7 +35,7 @@ GRES_PLACEHOLDER
 echo "Test"
 EOF
 
-# 测试不同的 GPU 格式
+# 娴嬭瘯涓嶅悓鐨?GPU 鏍煎紡
 declare -a GPU_FORMATS=(
     "#SBATCH --gres=gpu:1"
     "#SBATCH --gres=gpu:a100:1"
@@ -51,17 +51,16 @@ declare -a GPU_FORMATS=(
 working_formats=()
 
 for format in "${GPU_FORMATS[@]}"; do
-    # 替换占位符
-    sed "s|GRES_PLACEHOLDER|$format|" /tmp/test_gpu.sh > /tmp/test_current.sh
+    # 鏇挎崲鍗犱綅绗?    sed "s|GRES_PLACEHOLDER|$format|" /tmp/test_gpu.sh > /tmp/test_current.sh
     
-    # 测试提交
+    # 娴嬭瘯鎻愪氦
     result=$(sbatch --test-only /tmp/test_current.sh 2>&1)
     
     if echo "$result" | grep -qi "error\|invalid"; then
-        echo "✗ $format"
-        echo "  错误: $(echo "$result" | grep -i error | head -1)"
+        echo "鉁?$format"
+        echo "  閿欒: $(echo "$result" | grep -i error | head -1)"
     else
-        echo "✓ $format - 可用"
+        echo "鉁?$format - 鍙敤"
         working_formats+=("$format")
     fi
     echo ""
@@ -70,26 +69,26 @@ done
 rm -f /tmp/test_gpu.sh /tmp/test_current.sh
 
 echo ""
-echo "[4] 推荐配置"
+echo "[4] 鎺ㄨ崘閰嶇疆"
 echo "----------------------------------------"
 
 if [ ${#working_formats[@]} -gt 0 ]; then
-    echo "✓ 找到 ${#working_formats[@]} 个可用的 GPU 配置格式:"
+    echo "鉁?鎵惧埌 ${#working_formats[@]} 涓彲鐢ㄧ殑 GPU 閰嶇疆鏍煎紡:"
     for format in "${working_formats[@]}"; do
         echo "  $format"
     done
     echo ""
-    echo "推荐使用第一个: ${working_formats[0]}"
+    echo "鎺ㄨ崘浣跨敤绗竴涓? ${working_formats[0]}"
 else
-    echo "✗ 未找到可用的 GPU 配置格式"
+    echo "鉁?鏈壘鍒板彲鐢ㄧ殑 GPU 閰嶇疆鏍煎紡"
     echo ""
-    echo "建议尝试:"
-    echo "  1. 不指定 GPU（让 SLURM 自动分配）"
-    echo "  2. 联系 HPC 管理员确认正确的 GPU 请求格式"
+    echo "寤鸿灏濊瘯:"
+    echo "  1. 涓嶆寚瀹?GPU锛堣 SLURM 鑷姩鍒嗛厤锛?
+    echo "  2. 鑱旂郴 HPC 绠＄悊鍛樼‘璁ゆ纭殑 GPU 璇锋眰鏍煎紡"
 fi
 
 echo ""
-echo "[5] 完整的推荐 SLURM 配置"
+echo "[5] 瀹屾暣鐨勬帹鑽?SLURM 閰嶇疆"
 echo "----------------------------------------"
 
 if [ ${#working_formats[@]} -gt 0 ]; then
@@ -111,7 +110,7 @@ else
 #SBATCH --partition=compute
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-# 移除 --gres，让 SLURM 自动分配 GPU
+# 绉婚櫎 --gres锛岃 SLURM 鑷姩鍒嗛厤 GPU
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --time=48:00:00
@@ -119,8 +118,8 @@ SLURM_CONFIG
 fi
 
 echo ""
-echo "=== 检查完成 ==="
+echo "=== 妫€鏌ュ畬鎴?==="
 echo ""
-echo "下一步:"
-echo "1. 使用上面推荐的配置更新 submit_multi_seed.slurm"
-echo "2. 或者运行: bash submit_all_jobs.sh"
+echo "涓嬩竴姝?"
+echo "1. 浣跨敤涓婇潰鎺ㄨ崘鐨勯厤缃洿鏂?submit_multi_seed.slurm"
+echo "2. 鎴栬€呰繍琛? bash submit_all_jobs.sh"

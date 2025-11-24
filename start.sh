@@ -1,23 +1,19 @@
 #!/bin/bash
 
 ################################################################################
-# KAVA 一键启动脚本 - Linux HPC 环境
+# KAVA 涓€閿惎鍔ㄨ剼鏈?- Linux HPC 鐜
 ################################################################################
-# 此脚本整合了验证、配置和启动的完整流程
+# 姝よ剼鏈暣鍚堜簡楠岃瘉銆侀厤缃拰鍚姩鐨勫畬鏁存祦绋?#
+# 鐢ㄦ硶: bash start.sh [options]
 #
-# 用法: bash start.sh [options]
-#
-# 选项:
-#   --verify-only    仅验证部署，不启动训练
-#   --setup-only     仅设置环境，不启动训练
-#   --no-verify      跳过验证，直接启动
-#   --method METHOD  模型下载方法 (direct|proxy|mirror)
-#   --skip-download  跳过模型下载
+# 閫夐」:
+#   --verify-only    浠呴獙璇侀儴缃诧紝涓嶅惎鍔ㄨ缁?#   --setup-only     浠呰缃幆澧冿紝涓嶅惎鍔ㄨ缁?#   --no-verify      璺宠繃楠岃瘉锛岀洿鎺ュ惎鍔?#   --method METHOD  妯″瀷涓嬭浇鏂规硶 (direct|proxy|mirror)
+#   --skip-download  璺宠繃妯″瀷涓嬭浇
 ################################################################################
 
 set -e
 
-# 颜色定义
+# 棰滆壊瀹氫箟
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -26,14 +22,14 @@ CYAN='\033[0;36m'
 MAGENTA='\033[0;35m'
 NC='\033[0m'
 
-# 默认选项
+# 榛樿閫夐」
 VERIFY_ONLY=false
 SETUP_ONLY=false
 NO_VERIFY=false
 METHOD=""
 SKIP_DOWNLOAD=""
 
-# 解析参数
+# 瑙ｆ瀽鍙傛暟
 while [[ $# -gt 0 ]]; do
     case $1 in
         --verify-only)
@@ -61,8 +57,8 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         *)
-            echo -e "${RED}未知选项: $1${NC}"
-            echo "使用 --help 查看帮助"
+            echo -e "${RED}鏈煡閫夐」: $1${NC}"
+            echo "浣跨敤 --help 鏌ョ湅甯姪"
             exit 1
             ;;
     esac
@@ -70,141 +66,127 @@ done
 
 echo -e "${CYAN}"
 cat << "EOF"
-╔════════════════════════════════════════════════════════════════╗
-║                                                                ║
-║        KAVA Paper Reproduction - HPC 一键启动                  ║
-║                                                                ║
-║        Knowledge-Augmented Verbal-Augmentation                 ║
-║        Strict reproduction per paper specifications            ║
-║                                                                ║
-╚════════════════════════════════════════════════════════════════╝
+鈺斺晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晽
+鈺?                                                               鈺?鈺?       KAVA Paper Reproduction - HPC 涓€閿惎鍔?                 鈺?鈺?                                                               鈺?鈺?       Knowledge-Augmented Verbal-Augmentation                 鈺?鈺?       Strict reproduction per paper specifications            鈺?鈺?                                                               鈺?鈺氣晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨暆
 EOF
 echo -e "${NC}"
 echo ""
 
-# 步骤 1: 验证部署
+# 姝ラ 1: 楠岃瘉閮ㄧ讲
 if [ "$NO_VERIFY" = false ]; then
-    echo -e "${MAGENTA}[步骤 1/3] 验证部署${NC}"
-    echo "────────────────────────────────────────────────────────────────"
+    echo -e "${MAGENTA}[姝ラ 1/3] 楠岃瘉閮ㄧ讲${NC}"
+    echo "鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€"
     
     if [ -f "verify_deployment.sh" ]; then
         bash verify_deployment.sh
         
         if [ $? -ne 0 ]; then
             echo ""
-            echo -e "${RED}验证失败！请修复错误后重新运行。${NC}"
+            echo -e "${RED}楠岃瘉澶辫触锛佽淇閿欒鍚庨噸鏂拌繍琛屻€?{NC}"
             exit 1
         fi
     else
-        echo -e "${YELLOW}⚠ verify_deployment.sh 未找到，跳过验证${NC}"
+        echo -e "${YELLOW}鈿?verify_deployment.sh 鏈壘鍒帮紝璺宠繃楠岃瘉${NC}"
     fi
     
     echo ""
     
     if [ "$VERIFY_ONLY" = true ]; then
-        echo -e "${GREEN}验证完成！${NC}"
+        echo -e "${GREEN}楠岃瘉瀹屾垚锛?{NC}"
         exit 0
     fi
 fi
 
-# 步骤 2: 快速设置
-echo -e "${MAGENTA}[步骤 2/3] 环境设置${NC}"
-echo "────────────────────────────────────────────────────────────────"
+# 姝ラ 2: 蹇€熻缃?echo -e "${MAGENTA}[姝ラ 2/3] 鐜璁剧疆${NC}"
+echo "鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€"
 
 if [ -f "setup_hpc.sh" ]; then
     bash setup_hpc.sh
     
-    # 使环境变量生效
-    if [ -f ~/.bashrc ]; then
+    # 浣跨幆澧冨彉閲忕敓鏁?    if [ -f ~/.bashrc ]; then
         source ~/.bashrc 2>/dev/null || true
     fi
 else
-    echo -e "${YELLOW}⚠ setup_hpc.sh 未找到，跳过设置${NC}"
+    echo -e "${YELLOW}鈿?setup_hpc.sh 鏈壘鍒帮紝璺宠繃璁剧疆${NC}"
 fi
 
 echo ""
 
 if [ "$SETUP_ONLY" = true ]; then
-    echo -e "${GREEN}设置完成！${NC}"
+    echo -e "${GREEN}璁剧疆瀹屾垚锛?{NC}"
     exit 0
 fi
 
-# 步骤 3: 启动训练
-echo -e "${MAGENTA}[步骤 3/3] 启动训练任务${NC}"
-echo "────────────────────────────────────────────────────────────────"
+# 姝ラ 3: 鍚姩璁粌
+echo -e "${MAGENTA}[姝ラ 3/3] 鍚姩璁粌浠诲姟${NC}"
+echo "鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€"
 
 if [ -f "run_reproduce.sh" ]; then
-    echo -e "${CYAN}正在启动自动化训练流程...${NC}"
+    echo -e "${CYAN}姝ｅ湪鍚姩鑷姩鍖栬缁冩祦绋?..${NC}"
     echo ""
     
-    # 构建命令
+    # 鏋勫缓鍛戒护
     CMD="bash run_reproduce.sh"
     [ -n "$METHOD" ] && CMD="$CMD $METHOD"
     [ -n "$SKIP_DOWNLOAD" ] && CMD="$CMD $SKIP_DOWNLOAD"
     
-    echo -e "${BLUE}执行命令: $CMD${NC}"
+    echo -e "${BLUE}鎵ц鍛戒护: $CMD${NC}"
     echo ""
     
-    # 执行
+    # 鎵ц
     $CMD
     
     EXIT_CODE=$?
     
     echo ""
-    echo "────────────────────────────────────────────────────────────────"
+    echo "鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€"
     
     if [ $EXIT_CODE -eq 0 ]; then
         echo -e "${GREEN}"
         cat << "EOF"
-╔════════════════════════════════════════════════════════════════╗
-║                                                                ║
-║  ✅ 启动完成！训练任务已提交到 SLURM 队列                     ║
-║                                                                ║
-╚════════════════════════════════════════════════════════════════╝
+鈺斺晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晽
+鈺?                                                               鈺?鈺? 鉁?鍚姩瀹屾垚锛佽缁冧换鍔″凡鎻愪氦鍒?SLURM 闃熷垪                     鈺?鈺?                                                               鈺?鈺氣晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨暆
 EOF
         echo -e "${NC}"
         
         echo ""
-        echo -e "${CYAN}下一步操作：${NC}"
+        echo -e "${CYAN}涓嬩竴姝ユ搷浣滐細${NC}"
         echo ""
-        echo "1. 监控任务进度："
+        echo "1. 鐩戞帶浠诲姟杩涘害锛?
         echo -e "   ${GREEN}bash monitor_jobs.sh${NC}"
         echo ""
-        echo "2. 查看队列状态："
+        echo "2. 鏌ョ湅闃熷垪鐘舵€侊細"
         echo -e "   ${GREEN}squeue -u \$USER${NC}"
         echo ""
-        echo "3. 查看实时日志："
+        echo "3. 鏌ョ湅瀹炴椂鏃ュ織锛?
         echo -e "   ${GREEN}tail -f outputs/logs/llama1b_aug_seed42.log${NC}"
         echo ""
-        echo "4. 训练完成后收集结果："
+        echo "4. 璁粌瀹屾垚鍚庢敹闆嗙粨鏋滐細"
         echo -e "   ${GREEN}bash collect_results.sh${NC}"
         echo ""
-        echo -e "${YELLOW}预计时间：${NC}"
-        echo "  - 模型下载: 17-100 分钟（如未跳过）"
-        echo "  - 训练任务: 36-48 小时（并行执行）"
+        echo -e "${YELLOW}棰勮鏃堕棿锛?{NC}"
+        echo "  - 妯″瀷涓嬭浇: 17-100 鍒嗛挓锛堝鏈烦杩囷級"
+        echo "  - 璁粌浠诲姟: 36-48 灏忔椂锛堝苟琛屾墽琛岋級"
         echo ""
     else
         echo -e "${RED}"
         cat << "EOF"
-╔════════════════════════════════════════════════════════════════╗
-║                                                                ║
-║  ❌ 启动失败                                                   ║
-║                                                                ║
-╚════════════════════════════════════════════════════════════════╝
+鈺斺晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晽
+鈺?                                                               鈺?鈺? 鉂?鍚姩澶辫触                                                   鈺?鈺?                                                               鈺?鈺氣晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨暆
 EOF
         echo -e "${NC}"
         
         echo ""
-        echo -e "${YELLOW}故障排除建议：${NC}"
+        echo -e "${YELLOW}鏁呴殰鎺掗櫎寤鸿锛?{NC}"
         echo ""
-        echo "1. 检查日志输出中的错误信息"
-        echo "2. 验证磁盘空间: df -h \$HOME"
-        echo "3. 检查网络连接: ping huggingface.co"
-        echo "4. 查看详细文档: docs/GETTING_STARTED_HPC.md"
+        echo "1. 妫€鏌ユ棩蹇楄緭鍑轰腑鐨勯敊璇俊鎭?
+        echo "2. 楠岃瘉纾佺洏绌洪棿: df -h \$HOME"
+        echo "3. 妫€鏌ョ綉缁滆繛鎺? ping huggingface.co"
+        echo "4. 鏌ョ湅璇︾粏鏂囨。: docs/GETTING_STARTED_HPC.md"
         echo ""
         exit $EXIT_CODE
     fi
 else
-    echo -e "${RED}✗ run_reproduce.sh 未找到${NC}"
+    echo -e "${RED}鉁?run_reproduce.sh 鏈壘鍒?{NC}"
     exit 1
 fi

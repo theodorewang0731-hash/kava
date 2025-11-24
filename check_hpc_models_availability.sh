@@ -1,7 +1,6 @@
 #!/bin/bash
 ################################################################################
-# 检查 HPC 共享模型库
-################################################################################
+# 妫€鏌?HPC 鍏变韩妯″瀷搴?################################################################################
 
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -10,46 +9,43 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}"
-echo "════════════════════════════════════════════════════════════════"
-echo "  HPC 共享模型库检查"
-echo "════════════════════════════════════════════════════════════════"
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
+echo "  HPC 鍏变韩妯″瀷搴撴鏌?
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
 echo -e "${NC}"
 echo ""
 
 HPC_MODELS="/home/share/models"
 
-# 检查目录是否存在
-if [ ! -d "$HPC_MODELS" ]; then
-    echo -e "${RED}✗ HPC 共享模型库不存在: $HPC_MODELS${NC}"
+# 妫€鏌ョ洰褰曟槸鍚﹀瓨鍦?if [ ! -d "$HPC_MODELS" ]; then
+    echo -e "${RED}鉁?HPC 鍏变韩妯″瀷搴撲笉瀛樺湪: $HPC_MODELS${NC}"
     echo ""
-    echo "可能的原因："
-    echo "  1. 路径不正确"
-    echo "  2. 没有访问权限"
-    echo "  3. 模型库未挂载"
+    echo "鍙兘鐨勫師鍥狅細"
+    echo "  1. 璺緞涓嶆纭?
+    echo "  2. 娌℃湁璁块棶鏉冮檺"
+    echo "  3. 妯″瀷搴撴湭鎸傝浇"
     echo ""
-    echo "请联系 HPC 管理员确认共享模型库路径"
+    echo "璇疯仈绯?HPC 绠＄悊鍛樼‘璁ゅ叡浜ā鍨嬪簱璺緞"
     exit 1
 fi
 
-echo -e "${GREEN}✓ HPC 共享模型库存在: $HPC_MODELS${NC}"
+echo -e "${GREEN}鉁?HPC 鍏变韩妯″瀷搴撳瓨鍦? $HPC_MODELS${NC}"
 echo ""
 
-# 检查权限
-if [ -r "$HPC_MODELS" ]; then
-    echo -e "${GREEN}✓ 有读取权限${NC}"
+# 妫€鏌ユ潈闄?if [ -r "$HPC_MODELS" ]; then
+    echo -e "${GREEN}鉁?鏈夎鍙栨潈闄?{NC}"
 else
-    echo -e "${RED}✗ 无读取权限${NC}"
+    echo -e "${RED}鉁?鏃犺鍙栨潈闄?{NC}"
     exit 1
 fi
 echo ""
 
-# 检查目录大小
-MODELS_SIZE=$(du -sh "$HPC_MODELS" 2>/dev/null | cut -f1)
-echo "共享模型库大小: $MODELS_SIZE"
+# 妫€鏌ョ洰褰曞ぇ灏?MODELS_SIZE=$(du -sh "$HPC_MODELS" 2>/dev/null | cut -f1)
+echo "鍏变韩妯″瀷搴撳ぇ灏? $MODELS_SIZE"
 echo ""
 
-# 检查所需模型
-echo "检查所需模型:"
+# 妫€鏌ユ墍闇€妯″瀷
+echo "妫€鏌ユ墍闇€妯″瀷:"
 echo ""
 
 REQUIRED_MODELS=(
@@ -61,29 +57,29 @@ REQUIRED_MODELS=(
 ALL_FOUND=true
 
 for model in "${REQUIRED_MODELS[@]}"; do
-    # 转换路径格式
+    # 杞崲璺緞鏍煎紡
     model_path="$HPC_MODELS/models--${model//\//'--'}"
     
     echo -n "  $model: "
     if [ -d "$model_path" ]; then
-        echo -e "${GREEN}✓ 存在${NC}"
-        # 检查是否有 snapshots
+        echo -e "${GREEN}鉁?瀛樺湪${NC}"
+        # 妫€鏌ユ槸鍚︽湁 snapshots
         if [ -d "$model_path/snapshots" ]; then
             snapshot_count=$(ls -1 "$model_path/snapshots" 2>/dev/null | wc -l)
-            echo "    快照数: $snapshot_count"
+            echo "    蹇収鏁? $snapshot_count"
         fi
     else
-        echo -e "${RED}✗ 不存在${NC}"
-        echo "    期望路径: $model_path"
+        echo -e "${RED}鉁?涓嶅瓨鍦?{NC}"
+        echo "    鏈熸湜璺緞: $model_path"
         ALL_FOUND=false
     fi
 done
 
 echo ""
 
-# 测试模型加载
+# 娴嬭瘯妯″瀷鍔犺浇
 if [ "$ALL_FOUND" = true ]; then
-    echo "测试模型加载（使用第一个模型）:"
+    echo "娴嬭瘯妯″瀷鍔犺浇锛堜娇鐢ㄧ涓€涓ā鍨嬶級:"
     echo ""
     
     export HF_HOME="$HPC_MODELS"
@@ -98,9 +94,9 @@ try:
     from transformers import AutoTokenizer
     
     model_name = "meta-llama/Llama-3.2-1B-Instruct"
-    print(f"尝试加载: {model_name}")
+    print(f"灏濊瘯鍔犺浇: {model_name}")
     print(f"HF_HOME: {os.environ.get('HF_HOME')}")
-    print(f"离线模式: {os.environ.get('HUGGINGFACE_HUB_OFFLINE')}")
+    print(f"绂荤嚎妯″紡: {os.environ.get('HUGGINGFACE_HUB_OFFLINE')}")
     print("")
     
     tokenizer = AutoTokenizer.from_pretrained(
@@ -108,45 +104,45 @@ try:
         local_files_only=True
     )
     
-    print(f"✓ 成功加载 tokenizer")
-    print(f"  词汇表大小: {len(tokenizer)}")
-    print(f"  模型最大长度: {tokenizer.model_max_length}")
+    print(f"鉁?鎴愬姛鍔犺浇 tokenizer")
+    print(f"  璇嶆眹琛ㄥぇ灏? {len(tokenizer)}")
+    print(f"  妯″瀷鏈€澶ч暱搴? {tokenizer.model_max_length}")
     
 except Exception as e:
-    print(f"✗ 加载失败: {e}")
+    print(f"鉁?鍔犺浇澶辫触: {e}")
     sys.exit(1)
 EOF
     
     if [ $? -eq 0 ]; then
         echo ""
-        echo -e "${GREEN}✓ 模型加载测试成功${NC}"
+        echo -e "${GREEN}鉁?妯″瀷鍔犺浇娴嬭瘯鎴愬姛${NC}"
     else
         echo ""
-        echo -e "${RED}✗ 模型加载测试失败${NC}"
+        echo -e "${RED}鉁?妯″瀷鍔犺浇娴嬭瘯澶辫触${NC}"
     fi
 else
-    echo -e "${YELLOW}⚠ 部分模型缺失，跳过加载测试${NC}"
+    echo -e "${YELLOW}鈿?閮ㄥ垎妯″瀷缂哄け锛岃烦杩囧姞杞芥祴璇?{NC}"
 fi
 
 echo ""
-echo "════════════════════════════════════════════════════════════════"
-echo "  检查完成"
-echo "════════════════════════════════════════════════════════════════"
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
+echo "  妫€鏌ュ畬鎴?
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
 echo ""
 
 if [ "$ALL_FOUND" = true ]; then
-    echo -e "${GREEN}✓ 所有模型可用！${NC}"
+    echo -e "${GREEN}鉁?鎵€鏈夋ā鍨嬪彲鐢紒${NC}"
     echo ""
-    echo "可以直接运行训练任务:"
+    echo "鍙互鐩存帴杩愯璁粌浠诲姟:"
     echo "  sbatch --export=CONFIG=llama1b_aug submit_multi_seed.slurm"
     echo ""
-    echo "环境变量配置:"
+    echo "鐜鍙橀噺閰嶇疆:"
     echo "  export HF_HOME=/home/share/models"
     echo "  export TRANSFORMERS_CACHE=/home/share/models"
     echo "  export HUGGINGFACE_HUB_OFFLINE=1"
 else
-    echo -e "${YELLOW}⚠ 部分模型缺失${NC}"
+    echo -e "${YELLOW}鈿?閮ㄥ垎妯″瀷缂哄け${NC}"
     echo ""
-    echo "请联系 HPC 管理员或手动下载缺失的模型"
+    echo "璇疯仈绯?HPC 绠＄悊鍛樻垨鎵嬪姩涓嬭浇缂哄け鐨勬ā鍨?
 fi
 echo ""

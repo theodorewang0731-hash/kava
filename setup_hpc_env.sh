@@ -1,83 +1,82 @@
 #!/bin/bash
 ################################################################################
-# HPC 环境配置脚本（自动加载模块）
-# 用法: source setup_hpc_env.sh  （注意：必须使用 source 或 .）
-################################################################################
+# HPC 鐜閰嶇疆鑴氭湰锛堣嚜鍔ㄥ姞杞芥ā鍧楋級
+# 鐢ㄦ硶: source setup_hpc_env.sh  锛堟敞鎰忥細蹇呴』浣跨敤 source 鎴?.锛?################################################################################
 
-echo "════════════════════════════════════════════════════════════════"
-echo "  KAVA HPC 环境配置"
-echo "════════════════════════════════════════════════════════════════"
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
+echo "  KAVA HPC 鐜閰嶇疆"
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
 echo ""
 
-# 初始化 module 系统
+# 鍒濆鍖?module 绯荤粺
 if [ -f /usr/share/modules/init/bash ]; then
-    echo "[1/5] 初始化 module 系统..."
+    echo "[1/5] 鍒濆鍖?module 绯荤粺..."
     . /usr/share/modules/init/bash
     module use --append /home/share/modules/modulefiles
-    echo "✓ Module 系统已初始化"
+    echo "鉁?Module 绯荤粺宸插垵濮嬪寲"
 else
-    echo "⚠ 未找到 module 系统，可能不在 HPC 环境中"
+    echo "鈿?鏈壘鍒?module 绯荤粺锛屽彲鑳戒笉鍦?HPC 鐜涓?
 fi
 
-# 加载 anaconda3
+# 鍔犺浇 anaconda3
 echo ""
-echo "[2/5] 加载 Anaconda..."
+echo "[2/5] 鍔犺浇 Anaconda..."
 if command -v module &> /dev/null; then
     module load anaconda3
     if [ $? -eq 0 ]; then
-        echo "✓ Anaconda 已加载"
+        echo "鉁?Anaconda 宸插姞杞?
     else
-        echo "⚠ Anaconda 加载失败，尝试直接查找 conda..."
+        echo "鈿?Anaconda 鍔犺浇澶辫触锛屽皾璇曠洿鎺ユ煡鎵?conda..."
     fi
 fi
 
-# 验证 conda
+# 楠岃瘉 conda
 echo ""
-echo "[3/5] 验证 conda..."
+echo "[3/5] 楠岃瘉 conda..."
 if command -v conda &> /dev/null; then
-    echo "✓ Conda 可用: $(conda --version)"
+    echo "鉁?Conda 鍙敤: $(conda --version)"
 else
-    echo "✗ Conda 仍不可用"
+    echo "鉁?Conda 浠嶄笉鍙敤"
     echo ""
-    echo "可能的解决方案："
-    echo "  1. 检查 module 是否可用: module avail"
-    echo "  2. 手动加载: module load anaconda3"
-    echo "  3. 或使用系统 Python: python3 -m venv venv"
+    echo "鍙兘鐨勮В鍐虫柟妗堬細"
+    echo "  1. 妫€鏌?module 鏄惁鍙敤: module avail"
+    echo "  2. 鎵嬪姩鍔犺浇: module load anaconda3"
+    echo "  3. 鎴栦娇鐢ㄧ郴缁?Python: python3 -m venv venv"
     exit 1
 fi
 
-# 创建或激活 conda 环境
+# 鍒涘缓鎴栨縺娲?conda 鐜
 echo ""
-echo "[4/5] 配置 KAVA 环境..."
+echo "[4/5] 閰嶇疆 KAVA 鐜..."
 
 if conda env list | grep -q "^kava "; then
-    echo "⚠ 环境 'kava' 已存在，激活中..."
+    echo "鈿?鐜 'kava' 宸插瓨鍦紝婵€娲讳腑..."
     conda activate kava
 else
-    echo "创建新环境 'kava'..."
+    echo "鍒涘缓鏂扮幆澧?'kava'..."
     conda create -n kava python=3.10 -y
     conda activate kava
 fi
 
-# 安装依赖
+# 瀹夎渚濊禆
 echo ""
-echo "[5/5] 安装依赖..."
+echo "[5/5] 瀹夎渚濊禆..."
 pip install -r requirements.txt
 
-# 完成
+# 瀹屾垚
 echo ""
-echo "════════════════════════════════════════════════════════════════"
-echo "  配置完成！"
-echo "════════════════════════════════════════════════════════════════"
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
+echo "  閰嶇疆瀹屾垚锛?
+echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
 echo ""
-echo "环境已激活。接下来你可以："
+echo "鐜宸叉縺娲汇€傛帴涓嬫潵浣犲彲浠ワ細"
 echo ""
-echo "1. 提交训练任务："
+echo "1. 鎻愪氦璁粌浠诲姟锛?
 echo "   sbatch submit_multi_seed.slurm"
 echo ""
-echo "2. 或交互式运行："
+echo "2. 鎴栦氦浜掑紡杩愯锛?
 echo "   python train.py --config configs/llama1b_aug.yaml"
 echo ""
-echo "注意: 每次登录都需要重新激活环境："
+echo "娉ㄦ剰: 姣忔鐧诲綍閮介渶瑕侀噸鏂版縺娲荤幆澧冿細"
 echo "       conda activate kava"
 echo ""

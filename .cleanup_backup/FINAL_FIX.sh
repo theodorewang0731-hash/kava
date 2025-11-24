@@ -1,51 +1,49 @@
 #!/bin/bash
 #==============================================================================
-# 最终修复方案 - 使用 HPC 共享库本地路径
-# 问题：共享库是直接目录格式，不是 transformers 标准缓存格式
-# 解决：配置文件直接使用绝对路径 + 代码强制本地加载
+# 鏈€缁堜慨澶嶆柟妗?- 浣跨敤 HPC 鍏变韩搴撴湰鍦拌矾寰?# 闂锛氬叡浜簱鏄洿鎺ョ洰褰曟牸寮忥紝涓嶆槸 transformers 鏍囧噯缂撳瓨鏍煎紡
+# 瑙ｅ喅锛氶厤缃枃浠剁洿鎺ヤ娇鐢ㄧ粷瀵硅矾寰?+ 浠ｇ爜寮哄埗鏈湴鍔犺浇
 #==============================================================================
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🔧 KAVA 网络错误最终修复方案"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
+echo "馃敡 KAVA 缃戠粶閿欒鏈€缁堜慨澶嶆柟妗?
+echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
 echo ""
-echo "✅ 已完成的修复："
-echo "  1. 配置文件改用本地绝对路径"
-echo "  2. 代码添加本地路径检测和强制离线加载"
-echo "  3. 所有 3 个模型已确认完整存在"
+echo "鉁?宸插畬鎴愮殑淇锛?
+echo "  1. 閰嶇疆鏂囦欢鏀圭敤鏈湴缁濆璺緞"
+echo "  2. 浠ｇ爜娣诲姞鏈湴璺緞妫€娴嬪拰寮哄埗绂荤嚎鍔犺浇"
+echo "  3. 鎵€鏈?3 涓ā鍨嬪凡纭瀹屾暣瀛樺湪"
 echo ""
-echo "📋 修改的文件："
-echo "  - configs/llama1b_aug.yaml → /home/share/models/Llama-3.2-1B-Instruct"
-echo "  - configs/llama1b_aug_nl.yaml → /home/share/models/Llama-3.2-1B-Instruct"
-echo "  - configs/llama3b_aug.yaml → /home/share/models/Llama-3.2-3B-Instruct"
-echo "  - configs/qwen05b_aug.yaml → /home/share/models/Qwen2.5-0.5B-Instruct"
-echo "  - src/trainer.py → 添加本地路径强制离线"
-echo "  - evaluate.py → 添加本地路径强制离线"
+echo "馃搵 淇敼鐨勬枃浠讹細"
+echo "  - configs/llama1b_aug.yaml 鈫?/home/share/models/Llama-3.2-1B-Instruct"
+echo "  - configs/llama1b_aug_nl.yaml 鈫?/home/share/models/Llama-3.2-1B-Instruct"
+echo "  - configs/llama3b_aug.yaml 鈫?/home/share/models/Llama-3.2-3B-Instruct"
+echo "  - configs/qwen05b_aug.yaml 鈫?/home/share/models/Qwen2.5-0.5B-Instruct"
+echo "  - src/trainer.py 鈫?娣诲姞鏈湴璺緞寮哄埗绂荤嚎"
+echo "  - evaluate.py 鈫?娣诲姞鏈湴璺緞寮哄埗绂荤嚎"
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
 echo ""
 
 cd "/home/rpwang/kava review" || {
-    echo "❌ 错误: 无法进入项目目录"
+    echo "鉂?閿欒: 鏃犳硶杩涘叆椤圭洰鐩綍"
     exit 1
 }
 
 #==============================================================================
-# 步骤 1: 快速验证（本地测试，不提交 SLURM）
-#==============================================================================
-echo "┌────────────────────────────────────────────────────────────┐"
-echo "│ 步骤 1: 快速验证（推荐）                                  │"
-echo "│ 在登录节点测试模型加载（不提交作业，2 分钟内完成）        │"
-echo "└────────────────────────────────────────────────────────────┘"
+# 姝ラ 1: 蹇€熼獙璇侊紙鏈湴娴嬭瘯锛屼笉鎻愪氦 SLURM锛?#==============================================================================
+echo "鈹屸攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?
+echo "鈹?姝ラ 1: 蹇€熼獙璇侊紙鎺ㄨ崘锛?                                 鈹?
+echo "鈹?鍦ㄧ櫥褰曡妭鐐规祴璇曟ā鍨嬪姞杞斤紙涓嶆彁浜や綔涓氾紝2 鍒嗛挓鍐呭畬鎴愶級        鈹?
+echo "鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?
 echo ""
 
-read -p "是否运行快速验证? (y/n) " -n 1 -r
+read -p "鏄惁杩愯蹇€熼獙璇? (y/n) " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "🔍 开始验证..."
+    echo "馃攳 寮€濮嬮獙璇?.."
     source venv/bin/activate
     
-    # 测试加载所有 3 个模型的配置（快速，不加载权重）
+    # 娴嬭瘯鍔犺浇鎵€鏈?3 涓ā鍨嬬殑閰嶇疆锛堝揩閫燂紝涓嶅姞杞芥潈閲嶏級
     python -c "
 import os
 from transformers import AutoConfig
@@ -56,121 +54,118 @@ models = [
     ('/home/share/models/Qwen2.5-0.5B-Instruct', 'Qwen 0.5B'),
 ]
 
-print('━' * 60)
-print('测试从本地路径加载模型配置')
-print('━' * 60)
+print('鈹? * 60)
+print('娴嬭瘯浠庢湰鍦拌矾寰勫姞杞芥ā鍨嬮厤缃?)
+print('鈹? * 60)
 success = 0
 for path, name in models:
-    print(f'\n【{name}】')
-    print(f'  路径: {path}')
+    print(f'\n銆恵name}銆?)
+    print(f'  璺緞: {path}')
     try:
         config = AutoConfig.from_pretrained(
             path,
             trust_remote_code=True,
             local_files_only=True
         )
-        print(f'  ✓ 成功加载')
-        print(f'    模型类型: {config.model_type}')
-        print(f'    隐藏层: {config.hidden_size}')
+        print(f'  鉁?鎴愬姛鍔犺浇')
+        print(f'    妯″瀷绫诲瀷: {config.model_type}')
+        print(f'    闅愯棌灞? {config.hidden_size}')
         success += 1
     except Exception as e:
-        print(f'  ✗ 失败: {e}')
+        print(f'  鉁?澶辫触: {e}')
 
-print('\n' + '━' * 60)
+print('\n' + '鈹? * 60)
 if success == 3:
-    print('✅ 所有模型验证通过！可以提交训练任务')
+    print('鉁?鎵€鏈夋ā鍨嬮獙璇侀€氳繃锛佸彲浠ユ彁浜よ缁冧换鍔?)
     exit(0)
 else:
-    print(f'⚠️  部分模型验证失败 ({success}/3)')
+    print(f'鈿狅笍  閮ㄥ垎妯″瀷楠岃瘉澶辫触 ({success}/3)')
     exit(1)
 "
     
     VERIFY_EXIT=$?
     echo ""
     if [ $VERIFY_EXIT -eq 0 ]; then
-        echo "✅ 验证通过！"
+        echo "鉁?楠岃瘉閫氳繃锛?
     else
-        echo "❌ 验证失败！请检查错误信息"
+        echo "鉂?楠岃瘉澶辫触锛佽妫€鏌ラ敊璇俊鎭?
         echo ""
-        echo "常见问题排查："
-        echo "  1. 检查路径是否正确:"
+        echo "甯歌闂鎺掓煡锛?
+        echo "  1. 妫€鏌ヨ矾寰勬槸鍚︽纭?"
         echo "     ls -lh /home/share/models/Llama-3.2-1B-Instruct/config.json"
-        echo "  2. 检查权限:"
+        echo "  2. 妫€鏌ユ潈闄?"
         echo "     ls -ld /home/share/models/"
-        echo "  3. 检查文件完整性:"
+        echo "  3. 妫€鏌ユ枃浠跺畬鏁存€?"
         echo "     ls -lh /home/share/models/Llama-3.2-1B-Instruct/"
         exit 1
     fi
 fi
 
 #==============================================================================
-# 步骤 2: 单任务测试（提交到 SLURM）
-#==============================================================================
+# 姝ラ 2: 鍗曚换鍔℃祴璇曪紙鎻愪氦鍒?SLURM锛?#==============================================================================
 echo ""
-echo "┌────────────────────────────────────────────────────────────┐"
-echo "│ 步骤 2: 单任务测试（推荐）                                │"
-echo "│ 提交 1 个最小任务到 SLURM 验证完整流程                    │"
-echo "└────────────────────────────────────────────────────────────┘"
+echo "鈹屸攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?
+echo "鈹?姝ラ 2: 鍗曚换鍔℃祴璇曪紙鎺ㄨ崘锛?                               鈹?
+echo "鈹?鎻愪氦 1 涓渶灏忎换鍔″埌 SLURM 楠岃瘉瀹屾暣娴佺▼                    鈹?
+echo "鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?
 echo ""
-echo "将提交: Qwen 0.5B × 1 个种子（最快，约 2-4 小时）"
+echo "灏嗘彁浜? Qwen 0.5B 脳 1 涓瀛愶紙鏈€蹇紝绾?2-4 灏忔椂锛?
 echo ""
 
-read -p "是否提交单任务测试? (y/n) " -n 1 -r
+read -p "鏄惁鎻愪氦鍗曚换鍔℃祴璇? (y/n) " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "🚀 提交单任务测试..."
+    echo "馃殌 鎻愪氦鍗曚换鍔℃祴璇?.."
     
-    # 清理旧日志
-    rm -f outputs/logs/kava_qwen05b_aug_*.out outputs/logs/kava_qwen05b_aug_*.err 2>/dev/null
+    # 娓呯悊鏃ф棩蹇?    rm -f outputs/logs/kava_qwen05b_aug_*.out outputs/logs/kava_qwen05b_aug_*.err 2>/dev/null
     
     JOB_ID=$(sbatch --export=CONFIG=qwen05b_aug --array=0 submit_multi_seed.slurm 2>&1 | grep -oP '\d+')
     
     if [ -n "$JOB_ID" ]; then
-        echo "✓ 任务已提交: Job ID $JOB_ID"
+        echo "鉁?浠诲姟宸叉彁浜? Job ID $JOB_ID"
         echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "📊 监控任务"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
+        echo "馃搳 鐩戞帶浠诲姟"
+        echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
         echo ""
-        echo "查看队列:"
+        echo "鏌ョ湅闃熷垪:"
         echo "  squeue -j $JOB_ID"
         echo ""
-        echo "查看日志 (等待 2-3 分钟后):"
+        echo "鏌ョ湅鏃ュ織 (绛夊緟 2-3 鍒嗛挓鍚?:"
         echo "  tail -f outputs/logs/kava_qwen05b_aug_${JOB_ID}_0.out"
         echo "  tail -f outputs/logs/kava_qwen05b_aug_${JOB_ID}_0.err"
         echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "✅ 成功标志（日志中应显示）："
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
+        echo "鉁?鎴愬姛鏍囧織锛堟棩蹇椾腑搴旀樉绀猴級锛?
+        echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
         echo ""
         echo "Loading base model..."
         echo "Model: /home/share/models/Qwen2.5-0.5B-Instruct"
-        echo "Loading mode: Local path                    ← ✅ 关键"
+        echo "Loading mode: Local path                    鈫?鉁?鍏抽敭"
         echo "Model loaded successfully"
         echo "Training started"
         echo "Epoch 0 | Step 0 | Loss: ..."
         echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "❌ 不应出现（如果看到说明仍有问题）："
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
+        echo "鉂?涓嶅簲鍑虹幇锛堝鏋滅湅鍒拌鏄庝粛鏈夐棶棰橈級锛?
+        echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
         echo ""
-        echo "✗ Network is unreachable"
-        echo "✗ Cannot connect to huggingface.co"
-        echo "✗ We couldn't connect to 'https://huggingface.co'"
+        echo "鉁?Network is unreachable"
+        echo "鉁?Cannot connect to huggingface.co"
+        echo "鉁?We couldn't connect to 'https://huggingface.co'"
         echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
         echo ""
         
-        # 等待日志文件出现并显示
-        echo "⏳ 等待日志文件生成..."
+        # 绛夊緟鏃ュ織鏂囦欢鍑虹幇骞舵樉绀?        echo "鈴?绛夊緟鏃ュ織鏂囦欢鐢熸垚..."
         for i in {1..60}; do
             LOG_FILE=$(ls -t outputs/logs/kava_qwen05b_aug_${JOB_ID}_*.out 2>/dev/null | head -1)
             if [ -n "$LOG_FILE" ]; then
                 echo ""
-                echo "📄 找到日志文件: $LOG_FILE"
-                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                echo "最新日志内容（实时更新，按 Ctrl+C 停止）:"
-                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                echo "馃搫 鎵惧埌鏃ュ織鏂囦欢: $LOG_FILE"
+                echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
+                echo "鏈€鏂版棩蹇楀唴瀹癸紙瀹炴椂鏇存柊锛屾寜 Ctrl+C 鍋滄锛?"
+                echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
                 tail -f "$LOG_FILE"
                 break
             fi
@@ -180,16 +175,16 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         
         if [ -z "$LOG_FILE" ]; then
             echo ""
-            echo "⏳ 日志文件尚未生成（任务可能在排队）"
+            echo "鈴?鏃ュ織鏂囦欢灏氭湭鐢熸垚锛堜换鍔″彲鑳藉湪鎺掗槦锛?
             echo ""
-            echo "手动检查:"
-            echo "  squeue -j $JOB_ID  # 查看任务状态"
-            echo "  ls -lht outputs/logs/  # 列出日志文件"
+            echo "鎵嬪姩妫€鏌?"
+            echo "  squeue -j $JOB_ID  # 鏌ョ湅浠诲姟鐘舵€?
+            echo "  ls -lht outputs/logs/  # 鍒楀嚭鏃ュ織鏂囦欢"
         fi
     else
-        echo "❌ 任务提交失败"
+        echo "鉂?浠诲姟鎻愪氦澶辫触"
         echo ""
-        echo "调试信息:"
+        echo "璋冭瘯淇℃伅:"
         sbatch --export=CONFIG=qwen05b_aug --array=0 submit_multi_seed.slurm
         exit 1
     fi
@@ -198,60 +193,59 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 #==============================================================================
-# 步骤 3: 提交所有任务
-#==============================================================================
+# 姝ラ 3: 鎻愪氦鎵€鏈変换鍔?#==============================================================================
 echo ""
-echo "┌────────────────────────────────────────────────────────────┐"
-echo "│ 步骤 3: 提交所有任务（确认测试通过后）                    │"
-echo "│ 12 个任务，预计 36-48 小时                                 │"
-echo "└────────────────────────────────────────────────────────────┘"
+echo "鈹屸攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?
+echo "鈹?姝ラ 3: 鎻愪氦鎵€鏈変换鍔★紙纭娴嬭瘯閫氳繃鍚庯級                    鈹?
+echo "鈹?12 涓换鍔★紝棰勮 36-48 灏忔椂                                 鈹?
+echo "鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?
 echo ""
-echo "将提交:"
+echo "灏嗘彁浜?"
 echo "  - llama1b_aug (3 seeds)"
 echo "  - llama1b_aug_nl (3 seeds)"
 echo "  - llama3b_aug (3 seeds)"
 echo "  - qwen05b_aug (3 seeds)"
 echo ""
-echo "⚠️  建议: 先完成步骤 1 和步骤 2 的验证"
+echo "鈿狅笍  寤鸿: 鍏堝畬鎴愭楠?1 鍜屾楠?2 鐨勯獙璇?
 echo ""
 
-read -p "⚠️  确认要提交所有 12 个任务? (yes/no) " CONFIRM
+read -p "鈿狅笍  纭瑕佹彁浜ゆ墍鏈?12 涓换鍔? (yes/no) " CONFIRM
 if [ "$CONFIRM" = "yes" ]; then
-    echo "🚀 提交所有任务..."
+    echo "馃殌 鎻愪氦鎵€鏈変换鍔?.."
     bash submit_all_jobs.sh
     
     if [ $? -eq 0 ]; then
         echo ""
-        echo "✅ 所有任务已提交！"
+        echo "鉁?鎵€鏈変换鍔″凡鎻愪氦锛?
         echo ""
-        echo "监控命令:"
+        echo "鐩戞帶鍛戒护:"
         echo "  bash monitor_jobs.sh --auto"
         echo "  squeue --me"
     else
-        echo "❌ 任务提交失败"
+        echo "鉂?浠诲姟鎻愪氦澶辫触"
         exit 1
     fi
 else
-    echo "❌ 已取消"
+    echo "鉂?宸插彇娑?
 fi
 
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📚 修复总结"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
+echo "馃摎 淇鎬荤粨"
+echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"
 echo ""
-echo "问题根源:"
-echo "  - HPC 共享库是直接目录格式（不是 transformers 标准缓存）"
-echo "  - 使用 repo ID 会尝试联网，导致 Network is unreachable"
+echo "闂鏍规簮:"
+echo "  - HPC 鍏变韩搴撴槸鐩存帴鐩綍鏍煎紡锛堜笉鏄?transformers 鏍囧噯缂撳瓨锛?
+echo "  - 浣跨敤 repo ID 浼氬皾璇曡仈缃戯紝瀵艰嚧 Network is unreachable"
 echo ""
-echo "解决方案:"
-echo "  ✓ 配置文件改用绝对路径: /home/share/models/Llama-3.2-1B-Instruct"
-echo "  ✓ 代码检测本地路径时强制 local_files_only=True"
-echo "  ✓ 避免任何网络访问尝试"
+echo "瑙ｅ喅鏂规:"
+echo "  鉁?閰嶇疆鏂囦欢鏀圭敤缁濆璺緞: /home/share/models/Llama-3.2-1B-Instruct"
+echo "  鉁?浠ｇ爜妫€娴嬫湰鍦拌矾寰勬椂寮哄埗 local_files_only=True"
+echo "  鉁?閬垮厤浠讳綍缃戠粶璁块棶灏濊瘯"
 echo ""
-echo "验证要点:"
-echo "  ✓ 日志显示 'Loading mode: Local path'"
-echo "  ✓ 无 'Network is unreachable' 错误"
-echo "  ✓ 模型加载成功，训练正常启动"
+echo "楠岃瘉瑕佺偣:"
+echo "  鉁?鏃ュ織鏄剧ず 'Loading mode: Local path'"
+echo "  鉁?鏃?'Network is unreachable' 閿欒"
+echo "  鉁?妯″瀷鍔犺浇鎴愬姛锛岃缁冩甯稿惎鍔?
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣鈹佲攣"

@@ -10,11 +10,11 @@
 #SBATCH --error=logs/aggregate_%j.err
 
 #==============================================================================
-# KAVA 结果聚合 SLURM 脚本
-# 用法: sbatch --export=CONFIG=llama1b_aug submit_aggregate.slurm
+# KAVA 缁撴灉鑱氬悎 SLURM 鑴氭湰
+# 鐢ㄦ硶: sbatch --export=CONFIG=llama1b_aug submit_aggregate.slurm
 #==============================================================================
 
-# 配置参数
+# 閰嶇疆鍙傛暟
 CONFIG=${CONFIG:-"llama1b_aug"}
 
 echo "=========================================="
@@ -22,12 +22,12 @@ echo "Aggregating results for: $CONFIG"
 echo "Job ID: $SLURM_JOB_ID"
 echo "=========================================="
 
-# 加载 Python 环境
+# 鍔犺浇 Python 鐜
 . /usr/share/modules/init/bash
 module load anaconda3
 source activate kava
 
-# 输入和输出目录
+# 杈撳叆鍜岃緭鍑虹洰褰?
 INPUT_DIR="${SLURM_SUBMIT_DIR}/outputs/${CONFIG}_multi_seed"
 OUTPUT_JSON="${INPUT_DIR}/aggregated_results.json"
 OUTPUT_YAML="${INPUT_DIR}/aggregated_results.yaml"
@@ -38,20 +38,20 @@ echo "  - $OUTPUT_JSON"
 echo "  - $OUTPUT_YAML"
 echo ""
 
-# 检查种子目录
+# 妫€鏌ョ瀛愮洰褰?
 SEED_DIRS=()
 for seed in 42 123 456; do
     seed_dir="${INPUT_DIR}/seed_${seed}"
     if [ -d "$seed_dir" ]; then
-        echo "✓ Found seed directory: $seed_dir"
+        echo "鉁?Found seed directory: $seed_dir"
         SEED_DIRS+=("$seed_dir")
     else
-        echo "✗ Missing seed directory: $seed_dir"
+        echo "鉁?Missing seed directory: $seed_dir"
     fi
 done
 
 if [ ${#SEED_DIRS[@]} -eq 0 ]; then
-    echo "✗ No valid seed directories found!"
+    echo "鉁?No valid seed directories found!"
     exit 1
 fi
 
@@ -59,7 +59,7 @@ echo ""
 echo "Found ${#SEED_DIRS[@]} seed directories"
 echo "=========================================="
 
-# 运行聚合
+# 杩愯鑱氬悎
 echo "Running aggregation..."
 python aggregate_multi_seed.py \
     --seed_dirs "${SEED_DIRS[@]}" \
@@ -69,12 +69,12 @@ python aggregate_multi_seed.py \
     --output_yaml "$OUTPUT_YAML"
 
 if [ $? -eq 0 ]; then
-    echo "✓ Aggregation completed successfully"
+    echo "鉁?Aggregation completed successfully"
     echo ""
     echo "Results preview:"
     head -n 30 "$OUTPUT_YAML"
 else
-    echo "✗ Aggregation failed"
+    echo "鉁?Aggregation failed"
     exit 1
 fi
 

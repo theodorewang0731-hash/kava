@@ -86,9 +86,9 @@ log_error() {
 
 log_section() {
     echo ""
-    echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?{NC}"
     echo -e "${GREEN} $1${NC}"
-    echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?{NC}"
     echo ""
 }
 
@@ -106,11 +106,11 @@ check_prerequisites() {
     fi
     
     local python_version=$(python3 --version | cut -d' ' -f2)
-    log_info "✓ Python $python_version found"
+    log_info "鉁?Python $python_version found"
     
     # Check disk space
     local available_gb=$(df -BG "$HOME" | tail -1 | awk '{print $4}' | sed 's/G//')
-    log_info "✓ Disk space: ${available_gb}GB available"
+    log_info "鉁?Disk space: ${available_gb}GB available"
     
     if [ "$available_gb" -lt "$REQUIRED_SPACE_GB" ]; then
         log_error "Insufficient disk space. Need ${REQUIRED_SPACE_GB}GB, have ${available_gb}GB"
@@ -122,7 +122,7 @@ check_prerequisites() {
         log_error "SLURM (sbatch) not found. This script requires SLURM."
         exit 1
     fi
-    log_info "✓ SLURM available"
+    log_info "鉁?SLURM available"
     
     # Check required files
     local required_files=("requirements.txt" "submit_multi_seed.slurm" "train.py")
@@ -132,7 +132,7 @@ check_prerequisites() {
             exit 1
         fi
     done
-    log_info "✓ Required files present"
+    log_info "鉁?Required files present"
     
     log_success "Pre-flight checks passed"
 }
@@ -247,9 +247,9 @@ try:
         local_dir_use_symlinks=False,
         resume_download=True
     )
-    print('✓ Downloaded $model')
+    print('鉁?Downloaded $model')
 except Exception as e:
-    print(f'✗ Failed to download $model: {e}', file=sys.stderr)
+    print(f'鉁?Failed to download $model: {e}', file=sys.stderr)
     sys.exit(1)
 "
     done
@@ -268,7 +268,7 @@ submit_training_jobs() {
     local total_jobs=$((${#CONFIGS[@]} * ${#SEEDS[@]}))
     local job_count=0
     
-    log_info "Submitting $total_jobs training jobs (${#CONFIGS[@]} configs × ${#SEEDS[@]} seeds)..."
+    log_info "Submitting $total_jobs training jobs (${#CONFIGS[@]} configs 脳 ${#SEEDS[@]} seeds)..."
     
     for config in "${CONFIGS[@]}"; do
         for seed in "${SEEDS[@]}"; do
