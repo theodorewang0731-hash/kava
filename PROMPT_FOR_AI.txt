@@ -1,0 +1,100 @@
+# HPC AI 助手 - 快速提示词
+
+> 直接复制下面的文字，粘贴给 HPC 的 ChatGPT 助手
+
+---
+
+你好！我需要在 HPC 上部署并运行 KAVA 深度学习项目（论文复现）。项目已上传到当前目录，包含自动化脚本。
+
+## 任务目标
+在 HPC 集群上训练 4 个模型配置 × 3 个随机种子 = 12 个深度学习任务，需要：
+- GPU: 12 × A100-80GB（并行）
+- 磁盘: ~20GB（模型缓存）
+- 时间: 36-48 小时自动运行
+
+## 请按顺序执行以下命令
+
+### 0️⃣ 设置权限（首次运行必须）
+```bash
+cd ~/kava
+bash fix_permissions.sh
+```
+**问我：** 权限设置是否成功？
+
+### 1️⃣ 验证环境
+```bash
+cd ~/kava
+bash verify_deployment.sh
+```
+**问我：** 所有检查是否通过？
+
+### 2️⃣ 配置环境
+```bash
+bash setup_hpc.sh
+source ~/.bashrc
+```
+**问我：** 配置是否成功？
+
+### 3️⃣ 一键启动
+```bash
+bash start.sh --method mirror
+```
+（使用 `--method mirror` 可加速模型下载）
+
+**问我：** 
+- 显示提交了多少个任务？
+- 有无错误？
+
+### 4️⃣ 检查状态
+```bash
+squeue -u $USER
+```
+**问我：** 任务是否在运行？
+
+### 5️⃣ 查看日志
+```bash
+tail -20 outputs/logs/kava_*.out | head -50
+```
+**问我：** 训练是否正常？
+
+---
+
+## 关键信息
+
+**模型下载：** 需要 ~19GB，包含 3 个模型（Llama-3.2-1B/3B, Qwen2.5-0.5B）
+- 下载时间：使用镜像约 30-60 分钟
+- 位置：`$HOME/.cache/huggingface`
+
+**SLURM 配置：** 每任务 1 × A100-80GB, 8 CPU, 64GB 内存, 48 小时
+
+**完成标志：** `squeue -u $USER` 为空 + `outputs/results/` 有 12 个 JSON 文件
+
+---
+
+## 如果遇到问题
+
+### 磁盘不足
+```bash
+df -h $HOME
+rm -rf $HOME/.cache/huggingface/hub/.locks
+```
+
+### 下载失败
+```bash
+bash start.sh --method mirror  # 使用镜像
+# 或
+bash start.sh --skip-download  # 跳过下载（如已缓存）
+```
+
+### 任务失败
+```bash
+tail -100 outputs/logs/kava_*.err  # 查看错误日志
+```
+
+---
+
+## 请开始执行
+
+从步骤 1 开始，每完成一步就告诉我结果。如有错误，请提供完整的错误信息。
+
+准备好了吗？让我们开始！🚀

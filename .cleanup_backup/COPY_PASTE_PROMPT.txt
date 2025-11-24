@@ -1,0 +1,34 @@
+你好！帮我在 HPC 上运行 KAVA 深度学习项目。项目在 ~/kava 目录。
+
+请依次执行：
+
+0. 设置权限（首次必须）
+bash fix_permissions.sh
+
+1. 验证环境
+cd ~/kava
+bash verify_deployment.sh
+
+2. 配置环境
+bash setup_hpc.sh
+source ~/.bashrc
+
+3. 一键启动（使用镜像加速）
+bash start.sh --method mirror
+
+4. 检查任务状态
+squeue -u $USER
+
+5. 查看日志（确认训练正常）
+tail -30 outputs/logs/kava_*.out
+
+每步完成后告诉我结果。如有错误，提供完整错误信息。
+
+任务需要 36-48 小时完成，期间可以定期检查：
+bash monitor_jobs.sh
+
+完成后收集结果：
+bash collect_results.sh
+cat outputs/aggregated_results.csv | column -t -s,
+
+开始吧！

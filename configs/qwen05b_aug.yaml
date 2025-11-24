@@ -1,0 +1,58 @@
+# Qwen2.5-0.5B-Instruct + GSM8k-AUG
+# Strictly following Table 6 in the paper
+
+model:
+  name: "/home/share/models/Qwen2.5-0.5B-Instruct"  # HPC 共享库本地路径
+  type: "qwen"
+  
+lora:
+  r: 128  # Paper Table 6: LoRA rank = 128
+  alpha: 32  # Paper Table 6: LoRA α = 32
+  dropout: 0.1
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"]
+
+latent:
+  num_tokens: 24
+  num_iterations: 3
+
+dataset:
+  name: "whynlp/gsm8k-aug"
+  train_size: 385620
+  val_size: 500
+  test_size: 1319
+  cot_type: "equation"
+
+loss:
+  alpha1_codi: 10.0
+  alpha2_kv: 1.0
+  kv_loss_type: "mse"
+  layerwise_std: false  # No layer-wise std for Qwen on AUG
+  use_projection: true
+
+rkv:
+  lambda: 0.1
+
+training:
+  learning_rate: 5.0e-4  # Paper Table 6: Qwen + AUG = 5e-4
+  lr_scheduler: "cosine"
+  optimizer: "adamw"
+  batch_size: 128
+  weight_decay: 0.01  # Paper Table 6: Qwen + AUG weight_decay = 0.01
+  gradient_clipping: 2.0
+  epochs: 10  # Paper Table 6: Qwen epochs = 10
+  warmup_ratio: 0.05
+  save_steps: 1000
+  eval_steps: 500
+  logging_steps: 50
+
+evaluation:
+  datasets: ["gsm8k", "gsm8k-hard", "svamp"]
+  temperature: 0.0
+  top_p: 1.0
+  max_new_tokens: 256
+
+system:
+  mixed_precision: "bf16"
+  gradient_accumulation_steps: 1
+  num_workers: 4
+  seed: 42

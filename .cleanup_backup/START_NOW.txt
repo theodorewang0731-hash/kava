@@ -1,0 +1,130 @@
+你好！帮我在 HPC 上运行 KAVA 项目。项目路径：/home/rpwang/kava review
+
+【重要】最新修复已完成：
+- 配置文件已改用本地路径（/home/share/models/...）
+- 代码已添加强制离线加载（避免网络错误）
+- 所有模型已确认存在且完整
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【步骤 1】快速验证（2 分钟，不提交作业）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cd "/home/rpwang/kava review"
+source venv/bin/activate
+
+python -c "
+from transformers import AutoConfig
+
+models = [
+    ('/home/share/models/Llama-3.2-1B-Instruct', 'Llama 1B'),
+    ('/home/share/models/Llama-3.2-3B-Instruct', 'Llama 3B'),
+    ('/home/share/models/Qwen2.5-0.5B-Instruct', 'Qwen 0.5B'),
+]
+
+print('测试模型加载...')
+for path, name in models:
+    try:
+        config = AutoConfig.from_pretrained(path, trust_remote_code=True, local_files_only=True)
+        print(f'✓ {name}: {config.model_type}')
+    except Exception as e:
+        print(f'✗ {name}: {e}')
+"
+
+预期输出：
+✓ Llama 1B: llama
+✓ Llama 3B: llama
+✓ Qwen 0.5B: qwen2
+
+如果全部显示 ✓，继续步骤 2
+如果有 ✗，把错误信息发给我
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【步骤 2】下载数据集（5-10 分钟，登录节点）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  重要：必须在登录节点（有网络）预下载数据集
+计算节点无外网访问，会使用缓存
+
+cd "/home/rpwang/kava review"
+bash download_datasets.sh
+
+将下载 3 个数据集：
+- whynlp/gsm8k-aug（训练）
+- whynlp/gsm8k-aug-nl（训练）
+- gsm8k（评估）
+
+成功标志：
+✓ 所有数据集下载成功
+✓ 缓存到 ~/.cache/huggingface/datasets
+
+失败标志：
+✗ Network error → 检查登录节点网络
+✗ Dataset not found → 检查数据集名称
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【步骤 3】单任务测试（2-4 小时，提交到 SLURM）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cd "/home/rpwang/kava review"
+sbatch --export=CONFIG=qwen05b_aug --array=0 submit_multi_seed.slurm
+
+等待 2-3 分钟后查看日志：
+tail -n 100 outputs/logs/kava_qwen05b_aug_*.out
+
+成功标志（日志中应显示）：
+✓ Loading mode: Local path
+✓ Model loaded successfully
+✓ Training started
+✓ Epoch 0 | Step 0 | Loss: ...
+
+失败标志（不应出现）：
+✗ Network is unreachable
+✗ Cannot connect to huggingface.co
+
+如果看到成功标志，继续步骤 4
+如果任务失败，把日志发给我：
+tail -n 200 outputs/logs/kava_qwen05b_aug_*.out
+tail -n 200 outputs/logs/kava_qwen05b_aug_*.err
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【步骤 4】提交所有任务（36-48 小时）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cd "/home/rpwang/kava review"
+bash submit_all_jobs.sh
+
+将提交：
+- 4 个主任务（llama1b_aug, llama1b_aug_nl, llama3b_aug, qwen05b_aug）
+- 每个主任务包含 3 个子任务（seeds: 42, 123, 456）
+- 总计：4 × 3 = 12 个训练任务
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【步骤 5】监控任务（自动刷新）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+bash monitor_jobs.sh --auto
+
+每 30 秒自动刷新，显示任务进度
+按 Ctrl+C 停止
+
+或手动检查：
+squeue --me
+sacct -u $USER -S today
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【步骤 6】收集结果（训练完成后）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+bash collect_results.sh
+python validate_and_visualize.py
+cat outputs/REPRODUCTION_REPORT.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+从步骤 1 开始，每步完成后告诉我结果！
