@@ -1,0 +1,23 @@
+# 强制所有脚本文件使用 LF 换行符 (UNIX 格式)
+*.sh text eol=lf
+*.slurm text eol=lf
+*.py text eol=lf
+
+# 其他文本文件使用平台默认换行符
+*.md text
+*.txt text
+*.yaml text
+*.yml text
+*.json text
+
+# 二进制文件
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.pyc binary
+*.pth binary
+*.pt binary
+*.bin binary
