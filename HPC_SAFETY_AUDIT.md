@@ -3,6 +3,13 @@
 ## 🔒 审查日期
 2025-11-24
 
+## 📍 HPC 环境信息
+- **HPC 地址**: `10.160.22.46:2223`
+- **用户名**: `rpwang`
+- **项目路径**: `/home/rpwang/kava review` ⚠️ 路径包含空格
+- **连接方式**: `ssh rpwang@10.160.22.46 -p 2223`
+- **SFTP**: `sftp://rpwang@10.160.22.46:2223/home/rpwang/kava%20review`
+
 ## ✅ 安全性评估结果
 
 ### 1. **高危操作检查**
@@ -27,12 +34,17 @@
 
 #### ✅ 所有操作限制在用户目录：
 ```bash
-$HOME/.cache/huggingface    # HuggingFace 缓存
-$HOME/kava                  # 项目目录
-outputs/                    # 输出目录
-logs/                       # 日志目录
-venv_kava/                  # 虚拟环境
+/home/rpwang/.cache/huggingface         # HuggingFace 缓存
+/home/rpwang/kava review                # 项目目录（注意：路径包含空格）
+/home/rpwang/kava review/outputs        # 输出目录
+/home/rpwang/kava review/logs           # 日志目录
+/home/rpwang/kava review/venv_kava      # 虚拟环境
 ```
+
+**⚠️ 重要提示：路径包含空格**
+- 项目路径：`/home/rpwang/kava review`（包含空格）
+- 所有脚本已针对空格路径进行防护
+- 建议重命名为 `/home/rpwang/kava_review` 避免潜在问题
 
 #### ✅ 无跨用户影响：
 - 不修改其他用户文件
@@ -99,7 +111,7 @@ conda create -n kava_env python=3.10
    - ✅ 遵守 HPC 使用规范
 
 2. **文件系统隔离**
-   - ✅ 所有操作限制在用户 HOME 目录
+   - ✅ 所有操作限制在用户 HOME 目录 (`/home/rpwang`)
    - ✅ 不访问其他用户数据
    - ✅ 不修改系统配置
 
@@ -122,13 +134,17 @@ conda create -n kava_env python=3.10
 
 1. **磁盘配额**
    ```bash
-   # 检查磁盘使用
-   df -h $HOME
+   # 检查磁盘使用（你的实际目录）
+   df -h /home/rpwang
    quota -s  # 如果 HPC 有配额系统
+   du -sh /home/rpwang/.cache/huggingface  # 查看缓存大小
+   du -sh "/home/rpwang/kava review"       # 查看项目大小（注意引号）
    ```
-   - 模型缓存: ~19GB
-   - 训练输出: ~5-10GB
+   - 模型缓存: ~19GB (`/home/rpwang/.cache/huggingface`)
+   - 训练输出: ~5-10GB (`/home/rpwang/kava review/outputs`)
    - 建议保留: 30GB 空闲空间
+   
+   **⚠️ 路径空格注意**: 使用引号包裹路径 `"/home/rpwang/kava review"`
 
 2. **SLURM 作业数量**
    ```bash
@@ -147,9 +163,13 @@ conda create -n kava_env python=3.10
 
 4. **清理旧数据**
    ```bash
-   # 定期清理旧 checkpoint
+   # 定期清理旧 checkpoint（在你的项目目录下）
+   cd "/home/rpwang/kava review"  # 使用引号处理空格
    find outputs/ -name "checkpoint-*" -type d -mtime +30  # 查看
    # 手动删除（不会自动执行）
+   
+   # 清理 HuggingFace 缓存锁文件
+   rm -rf ~/.cache/huggingface/hub/.locks
    ```
 
 ---
@@ -161,9 +181,26 @@ conda create -n kava_env python=3.10
 - [ ] 有足够磁盘空间（≥20GB）
 - [ ] 了解 HPC 的资源限制策略
 - [ ] 不会同时提交过多任务
-- [ ] 项目目录在自己的 HOME 下
+- [ ] 项目目录在自己的 HOME 下 (`/home/rpwang/kava review`)
 - [ ] 虚拟环境已激活
 - [ ] 已阅读 HPC 使用规范
+- [ ] ⚠️ **已注意路径包含空格** - 所有命令使用引号
+
+### ⚠️ 路径空格重要提示
+
+你的项目路径 `/home/rpwang/kava review` 包含空格。在命令行操作时：
+
+```bash
+# ✅ 正确 - 使用引号
+cd "/home/rpwang/kava review"
+source "/home/rpwang/kava review/venv_kava/bin/activate"
+
+# ❌ 错误 - 不使用引号
+cd /home/rpwang/kava review  # 会被解析为两个参数
+
+# 💡 推荐 - 重命名目录避免问题
+mv "/home/rpwang/kava review" /home/rpwang/kava_review
+```
 
 ---
 
