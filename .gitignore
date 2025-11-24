@@ -58,7 +58,9 @@ logs/
 
 # Data (large files)
 data/
-datasets/
+datasets/*
+!datasets/README.md
+!datasets/download_datasets.py
 *.csv
 *.json.gz
 
