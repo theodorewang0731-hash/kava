@@ -16,7 +16,7 @@ latent:
   num_iterations: 3  # T = 3 (Jacobi iterations)
 
 dataset:
-  name: "whynlp/gsm8k-aug-nl"  # 优先使用本地 ./datasets/gsm8k-aug-nl
+  name: "/home/rpwang/kava review/datasets/gsm8k-aug-nl"  # HPC 本地数据集路径
   train_size: 385620
   val_size: 500
   test_size: 1319
