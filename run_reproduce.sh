@@ -355,12 +355,28 @@ detect_download_method() {
 }
 
 download_models() {
+    log_section "Step 3/5: Model Configuration"
+    
+    # HPC 上已有共享模型，无需下载
+    log_info "检查 HPC 共享模型库..."
+    
+    local hpc_models_dir="/home/share/models"
+    if [ -d "$hpc_models_dir" ]; then
+        log_success "HPC 共享模型库可用: $hpc_models_dir"
+        export HF_HOME="$hpc_models_dir"
+        export TRANSFORMERS_CACHE="$hpc_models_dir"
+        export HUGGINGFACE_HUB_OFFLINE=1
+        log_info "已配置使用共享模型（离线模式）"
+        return
+    fi
+    
+    # 如果指定跳过下载
     if [ "$SKIP_DOWNLOAD" = true ]; then
         log_info "Skipping model download (--skip-download specified)"
         return
     fi
     
-    log_section "Step 3/5: Model Download"
+    log_warning "HPC 共享模型库不可用，将下载到个人缓存"
     
     local method=$(detect_download_method)
     log_info "Using download method: $method"

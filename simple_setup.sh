@@ -116,16 +116,29 @@ echo ""
 # =============================================================================
 echo -e "${BLUE}[5/5] 配置环境${NC}"
 
-# HuggingFace 缓存
-export HF_HOME="$HOME/.cache/huggingface"
-export TRANSFORMERS_CACHE="$HOME/.cache/huggingface"
-export HF_DATASETS_CACHE="$HOME/.cache/huggingface"
-
-mkdir -p "$HF_HOME"
-echo -e "${GREEN}✓ HuggingFace 缓存: $HF_HOME${NC}"
+# 检查 HPC 共享模型库
+HPC_MODELS="/home/share/models"
+if [ -d "$HPC_MODELS" ]; then
+    echo -e "${GREEN}✓ 检测到 HPC 共享模型库${NC}"
+    export HF_HOME="$HPC_MODELS"
+    export TRANSFORMERS_CACHE="$HPC_MODELS"
+    export HF_DATASETS_CACHE="$HOME/.cache/huggingface"
+    export HUGGINGFACE_HUB_OFFLINE=1
+    echo "  模型路径: $HPC_MODELS"
+    echo "  数据集缓存: $HF_DATASETS_CACHE"
+    echo "  离线模式: 已启用"
+else
+    echo -e "${YELLOW}⚠ HPC 共享模型库不可用，使用个人缓存${NC}"
+    export HF_HOME="$HOME/.cache/huggingface"
+    export TRANSFORMERS_CACHE="$HOME/.cache/huggingface"
+    export HF_DATASETS_CACHE="$HOME/.cache/huggingface"
+    mkdir -p "$HF_HOME"
+    echo "  缓存路径: $HF_HOME"
+fi
 
 # 创建必要的目录
 mkdir -p logs outputs/checkpoints outputs/results
+mkdir -p "$HF_DATASETS_CACHE"
 echo -e "${GREEN}✓ 输出目录已创建${NC}"
 echo ""
 
@@ -140,14 +153,24 @@ echo -e "${NC}"
 echo ""
 echo "虚拟环境已激活。你现在可以："
 echo ""
-echo "1. 下载模型（如果还没有）："
-echo "   python download_from_hf.py"
+echo "1. 提交 SLURM 训练任务（推荐）："
+echo "   sbatch --export=CONFIG=llama1b_aug submit_multi_seed.slurm"
+echo "   sbatch submit_all_jobs.sh  # 提交所有配置"
 echo ""
-echo "2. 运行训练："
+echo "2. 或者直接运行训练（用于测试）："
 echo "   python train.py --config configs/llama1b_aug.yaml"
 echo ""
-echo "3. 提交 SLURM 任务："
-echo "   sbatch submit_multi_seed.slurm"
+echo "3. 监控任务状态："
+echo "   squeue -u rpwang"
+echo "   bash monitor_jobs.sh"
+echo ""
+if [ -d "$HPC_MODELS" ]; then
+    echo -e "${GREEN}✓ 模型已就绪: HPC 共享模型库 $HPC_MODELS${NC}"
+    echo "  无需下载模型，直接提交训练任务即可！"
+else
+    echo -e "${YELLOW}⚠ 注意: 如需下载模型，运行:${NC}"
+    echo "   python download_from_hf.py"
+fi
 echo ""
 echo -e "${YELLOW}注意: 每次登录都需要重新激活环境:${NC}"
 echo "   source \"$VENV_DIR/bin/activate\""
