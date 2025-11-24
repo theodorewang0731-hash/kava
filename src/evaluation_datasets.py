@@ -6,6 +6,7 @@ Adds GSM8k-Hard and SVAMP datasets for zero-shot evaluation.
 from datasets import load_dataset, Dataset
 from typing import Optional, Dict
 import re
+import os
 
 
 class EvaluationDatasets:
@@ -17,6 +18,48 @@ class EvaluationDatasets:
     - GSM8k-Hard (Gao et al.)
     - SVAMP (Patel et al.)
     """
+    
+    @staticmethod
+    def _load_with_fallback(dataset_name: str, config: Optional[str] = None, split: str = "test", local_name: Optional[str] = None):
+        """
+        Load dataset with local-first fallback.
+        
+        Args:
+            dataset_name: HuggingFace dataset name
+            config: Dataset config name (optional)
+            split: Dataset split
+            local_name: Local directory name (defaults to last part of dataset_name)
+        
+        Returns:
+            Dataset
+        """
+        if local_name is None:
+            local_name = dataset_name.split('/')[-1]
+        
+        local_path = os.path.join("./datasets", local_name)
+        
+        # Try local first
+        if os.path.exists(local_path):
+            try:
+                print(f"✅ Loading {local_name} from local: {local_path}")
+                if config:
+                    dataset = load_dataset(local_path, config, split=split)
+                else:
+                    dataset = load_dataset(local_path, split=split)
+                print(f"✅ Loaded {len(dataset)} samples from local")
+                return dataset
+            except Exception as e:
+                print(f"⚠️ Local load failed: {e}, trying HuggingFace...")
+        else:
+            print(f"ℹ️ Local not found, loading from HuggingFace: {dataset_name}")
+        
+        # Fallback to HuggingFace
+        if config:
+            dataset = load_dataset(dataset_name, config, split=split)
+        else:
+            dataset = load_dataset(dataset_name, split=split)
+        print(f"✅ Loaded {len(dataset)} samples from HuggingFace")
+        return dataset
     
     @staticmethod
     def load_gsm8k(split: str = "test") -> Dataset:
@@ -33,7 +76,7 @@ class EvaluationDatasets:
         Returns:
             Dataset with 1,319 test samples
         """
-        dataset = load_dataset("openai/gsm8k", "main", split=split)
+        dataset = EvaluationDatasets._load_with_fallback("openai/gsm8k", config="main", split=split, local_name="gsm8k")
         print(f"Loaded GSM8k {split}: {len(dataset)} samples")
         return dataset
     
@@ -51,23 +94,18 @@ class EvaluationDatasets:
             Dataset with GSM8k-Hard samples
         """
         try:
-            # Try official source
-            dataset = load_dataset("reasoning-machines/gsm-hard", split="train")
+            # Try local first
+            dataset = EvaluationDatasets._load_with_fallback(
+                "reasoning-machines/gsm-hard", 
+                split="train", 
+                local_name="gsm8k-hard"
+            )
             print(f"Loaded GSM8k-Hard: {len(dataset)} samples")
             return dataset
         except Exception as e:
-            print(f"Warning: Cannot load GSM8k-Hard from reasoning-machines/gsm-hard: {e}")
-            
-            # Try alternative source
-            try:
-                # Some implementations use this format
-                dataset = load_dataset("gsm8k", "hard", split="test")
-                print(f"Loaded GSM8k-Hard (alternative): {len(dataset)} samples")
-                return dataset
-            except Exception as e2:
-                print(f"Warning: Cannot load GSM8k-Hard alternative: {e2}")
-                print("Using GSM8k test set as placeholder for GSM8k-Hard")
-                return EvaluationDatasets.load_gsm8k(split="test")
+            print(f"Warning: Cannot load GSM8k-Hard: {e}")
+            print("Using GSM8k test set as placeholder for GSM8k-Hard")
+            return EvaluationDatasets.load_gsm8k(split="test")
     
     @staticmethod
     def load_svamp() -> Dataset:
@@ -87,31 +125,16 @@ class EvaluationDatasets:
             Dataset with ~1,000 SVAMP samples
         """
         try:
-            # Try primary source
-            dataset = load_dataset("ChilleD/SVAMP", split="test")
+            # Try local first
+            dataset = EvaluationDatasets._load_with_fallback(
+                "ChilleD/SVAMP", 
+                split="test", 
+                local_name="svamp"
+            )
             print(f"Loaded SVAMP: {len(dataset)} samples")
             return dataset
         except Exception as e:
-            print(f"Warning: Cannot load SVAMP from ChilleD/SVAMP: {e}")
-            
-            # Try alternative sources
-            alternative_sources = [
-                ("svamp", None, "test"),
-                ("allenai/svamp", None, "test"),
-            ]
-            
-            for source_name, config, split in alternative_sources:
-                try:
-                    if config:
-                        dataset = load_dataset(source_name, config, split=split)
-                    else:
-                        dataset = load_dataset(source_name, split=split)
-                    print(f"Loaded SVAMP from {source_name}: {len(dataset)} samples")
-                    return dataset
-                except:
-                    continue
-            
-            print("Warning: Cannot load SVAMP from any source")
+            print(f"Warning: Cannot load SVAMP: {e}")
             print("Using GSM8k test set as placeholder for SVAMP")
             return EvaluationDatasets.load_gsm8k(split="test")
     

@@ -4,6 +4,7 @@ Loads GSM8k-AUG and GSM8k-AUG-NL datasets from HuggingFace.
 """
 
 import re
+import os
 from typing import Dict, List, Optional, Tuple
 from datasets import load_dataset, Dataset
 from transformers import PreTrainedTokenizer
@@ -45,9 +46,9 @@ class GSM8KDataset:
         self.max_length = max_length
         self.cot_type = cot_type
         
-        # Load dataset
+        # Load dataset (local first, then HuggingFace)
         print(f"Loading dataset: {dataset_name}")
-        self.dataset = load_dataset(dataset_name)
+        self.dataset = self._load_dataset_with_fallback(dataset_name)
         
         # Verify dataset sizes (should match paper)
         self.verify_dataset_sizes()
@@ -59,6 +60,47 @@ class GSM8KDataset:
         # Add special tokens to tokenizer if needed
         if tokenizer is not None:
             self.add_special_tokens()
+    
+    def _load_dataset_with_fallback(self, dataset_name: str):
+        """
+        Load dataset with local-first fallback strategy.
+        
+        Priority:
+        1. Local ./datasets/<name>/ directory
+        2. HuggingFace hub (download)
+        
+        Args:
+        dataset_name: HuggingFace dataset name like "whynlp/gsm8k-aug"
+        
+        Returns:
+            Loaded dataset
+        """
+        # Extract dataset name from full path
+        local_name = dataset_name.split('/')[-1]  # "gsm8k-aug" from "whynlp/gsm8k-aug"
+        local_path = os.path.join("./datasets", local_name)
+        
+        # Try local first
+        if os.path.exists(local_path):
+            try:
+                print(f"✅ Loading from local: {local_path}")
+                dataset = load_dataset(local_path)
+                print(f"✅ Successfully loaded from local storage")
+                return dataset
+            except Exception as e:
+                print(f"⚠️ Local load failed: {e}")
+                print(f"📥 Falling back to HuggingFace...")
+        else:
+            print(f"ℹ️ Local path not found: {local_path}")
+            print(f"📥 Loading from HuggingFace: {dataset_name}")
+        
+        # Fallback to HuggingFace
+        try:
+            dataset = load_dataset(dataset_name)
+            print(f"✅ Successfully loaded from HuggingFace")
+            return dataset
+        except Exception as e:
+            print(f"❌ Failed to load dataset: {e}")
+            raise
     
     def verify_dataset_sizes(self):
         """Verify dataset sizes match paper (385620 train, 500 val, 1319 test)."""
