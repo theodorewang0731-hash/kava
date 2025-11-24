@@ -491,8 +491,8 @@ EOF
         exit 1
     fi
     
-    # Clean up
-    rm -f /tmp/download_models_${USER}.py
+    # Clean up temporary files (safe: user-specific)
+    rm -f /tmp/download_models_${USER}.py 2>/dev/null || true
 }
 
 # =============================================================================

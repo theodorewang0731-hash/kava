@@ -175,7 +175,7 @@ print("✓ 配置文件更新完成")
 PYTHON_SCRIPT
 
 python /tmp/update_configs.py || log "⚠ 配置更新失败，继续使用原有配置"
-rm /tmp/update_configs.py
+rm -f /tmp/update_configs.py 2>/dev/null || true
 
 log "✓ 配置文件已更新"
 
@@ -374,7 +374,7 @@ except Exception as e:
 PYTHON_UPLOAD
         
         python /tmp/upload_results.py || log "⚠ 上传失败"
-        rm /tmp/upload_results.py
+        rm -f /tmp/upload_results.py 2>/dev/null || true
     fi
 else
     log "跳过上传（UPLOAD_TO_HF=false）"
