@@ -12,7 +12,7 @@
 #SBATCH --gres=gpu:a100-sxm4-80gb:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
-#SBATCH --time=48:00:00
+#SBATCH --time=04:00:00
 #SBATCH --output=logs/kava_enroot_%A_%a.out
 #SBATCH --error=logs/kava_enroot_%A_%a.err
 #SBATCH --array=0-2  # 3 涓瀛?
